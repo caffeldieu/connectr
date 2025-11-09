@@ -1,1 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>connectr+</title>
+  <!-- Font: "Garet" is not hosted by default. If you have a URL, swap it below. Fallbacks provided. -->
+  <style>
+    /* Optional: plug in your hosted Garet font here */
+    @font-face {
+      font-family: 'Garet';
+      src: local('Garet'); /* replace with url('https://your-cdn/garet.woff2') format('woff2') */
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root{
+      --purple:#5E17EB;
+      --neon:#C1FF72;
+      --bg:#ffffff;
+      --fg:#0b0b0f;
+      --muted:#6b6b74;
+      --card:#ffffff;
+      --line:#ececf1;
+      --radius:18px;
+      --shadow:0 10px 25px rgba(20,16,56,0.08);
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; background:var(--bg); color:var(--fg);
+      font-family: 'Garet', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+
+    /* App shell */
+    .app{
+      display:grid; grid-template-rows: 64px 1fr;
+      min-height:100vh; max-width:1200px; margin:0 auto;
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; gap:12px; position:sticky; top:0; z-index:5; background:var(--bg);
+      border-bottom:1px solid var(--line);
+    }
+    .brand{ display:flex; align-items:center; gap:12px; font-weight:700; letter-spacing:.4px }
+    .logo{
+      width:36px; height:36px; display:grid; place-items:center; border-radius:50%;
+      background:var(--purple); color:white; font-weight:800; position:relative;
+    }
+    .logo::after{ content:'+'; position:absolute; right:-6px; top:-6px; width:18px; height:18px; border-radius:6px; display:grid; place-items:center; background:var(--neon); color:#1a1a1a; font-size:12px; font-weight:900; }
+    .brand-name{ font-size:20px }
+
+    .top-actions{ display:flex; gap:8px; align-items:center; }
+    .btn{
+      appearance:none; border:none; background:#111; color:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
+    }
+    .btn.secondary{ background:#fff; color:#111; border:1px solid var(--line) }
+    .btn.purple{ background:var(--purple) }
+    .btn.neon{ background:var(--neon); color:#121212 }
+    .chip{ font-size:12px; color:var(--muted) }
+
+    main{ display:grid; grid-template-rows: 1fr 66px; }
+
+    /* Views */
+    .view{ display:none; padding:18px; }
+    .view.active{ display:block }
+
+    /** Nav (mobile-first, bottom) **/
+    nav{
+      position:sticky; bottom:0; left:0; right:0; border-top:1px solid var(--line);
+      background:var(--bg); height:66px; display:grid; grid-template-columns: repeat(5, 1fr);
+    }
+    .nav-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:12px; color:#444; cursor:pointer; }
+    .nav-btn.active{ color:var(--purple); font-weight:700 }
+
+    /* Cards & lists */
+    .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px }
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:14px; display:flex; flex-direction:column; gap:10px;
+    }
+    .row{ display:flex; gap:12px; align-items:center }
+    .row.spread{ justify-content:space-between }
+    .muted{ color:var(--muted) }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea{
+      width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; font:inherit;
+    }
+    textarea{ min-height:120px; resize:vertical }
+    .seg{ display:flex; gap:8px; flex-wrap:wrap }
+    .seg .seg-btn{ padding:8px 10px; border:1px solid var(--line); border-radius:10px; cursor:pointer; background:#fff }
+    .seg .seg-btn.active{ border-color:var(--purple); color:var(--purple); font-weight:700 }
+
+    /* Blackboard */
+    .blackboard{ background:#111; color:#fff; border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); position:relative; overflow:hidden }
+    .blackboard h3{ margin:0 0 8px 0 }
+    .blackboard .pin{ position:absolute; right:18px; top:14px; background:var(--neon); color:#1a1a1a; font-weight:900; padding:2px 8px; border-radius:999px; font-size:12px }
+
+    /* Modal */
+    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; padding:18px; z-index:20 }
+    .modal .sheet{ background:#fff; border-radius:18px; width:min(680px, 92vw); padding:18px; box-shadow:var(--shadow) }
+
+    /* Tables/messages */
+    .list{ display:flex; flex-direction:column; gap:12px }
+    .list-item{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid var(--line); border-radius:12px; background:#fff }
+    .avatar{ width:40px; height:40px; border-radius:50%; background:#eee; display:grid; place-items:center; font-weight:800; color:#333 }
+
+    /* Desktop enhancements */
+    @media (min-width: 880px){
+      .app{ grid-template-rows: 72px 1fr }
+      header{ padding:16px 20px }
+      .brand-name{ font-size:22px }
+      .nav-btn{ font-size:13px }
+      .view{ padding:24px }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">C</div>
+        <div class="brand-name">connectr<span style="color:var(--neon)">+</span></div>
+        <div class="chip">beta</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" onclick="openModal('announceModal')">Post to Blackboard</button>
+        <button class="btn neon" onclick="openModal('newListingModal')">New Listing</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Views -->
+      <section id="home" class="view active">
+        <div class="grid">
+          <div class="blackboard card" style="grid-column:1/-1">
+            <span class="pin">Announcements</span>
+            <h3>Campus Blackboard</h3>
+            <div id="blackboardList" class="list"></div>
+            <div class="row" style="margin-top:10px">
+              <input id="blackboardText" type="text" placeholder="Share an announcement…"/>
+              <button class="btn purple" onclick="addAnnouncement()">Post</button>
+            </div>
+          </div>
+
+          <div class="card" style="grid-column:1/-1">
+            <div class="row spread">
+              <h3 style="margin:0">Trending listings</h3>
+              <div class="muted">Buy now or place a bid</div>
+            </div>
+            <div id="trendingGrid" class="grid" style="margin-top:10px"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="search" class="view">
+        <div class="card">
+          <div class="row" style="gap:10px">
+            <input id="searchInput" type="text" placeholder="Search by keyword…"/>
+            <button class="btn purple" onclick="runSearch()">Search</button>
+          </div>
+        </div>
+        <div id="searchResults" class="grid" style="margin-top:16px"></div>
+      </section>
+
+      <section id="favourites" class="view">
+        <div class="row spread" style="margin-bottom:12px">
+          <h3 style="margin:0">Your favourites</h3>
+          <button class="btn secondary" onclick="clearFavourites()">Clear</button>
+        </div>
+        <div id="favGrid" class="grid"></div>
+      </section>
+
+      <section id="post" class="view">
+        <div class="card">
+          <h3 style="margin:0 0 10px 0">Create a listing</h3>
+          <div class="seg" style="margin-bottom:10px">
+            <div class="seg-btn active" data-val="offer" onclick="toggleSeg(this,'postType')">I offer</div>
+            <div class="seg-btn" data-val="search" onclick="toggleSeg(this,'postType')">I am searching</div>
+          </div>
+          <div class="grid" style="grid-template-columns:1fr">
+            <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap">
+              <div style="flex:1 1 320px">
+                <label class="muted">Title</label>
+                <input id="p_title" type="text" placeholder="Give your listing a title (min. 10 chars)"/>
+              </div>
+              <div style="flex:1 1 220px">
+                <label class="muted">Category</label>
+                <input id="p_category" type="text" placeholder="Search category"/>
+              </div>
+            </div>
+            <div>
+              <label class="muted">Description</label>
+              <textarea id="p_desc" placeholder="Describe the item…"></textarea>
+            </div>
+            <div class="row" style="gap:16px; flex-wrap:wrap">
+              <div style="flex:1 1 160px">
+                <label class="muted">Price</label>
+                <input id="p_price" type="number" min="0" step="0.01" placeholder="0.00"/>
+              </div>
+              <div style="flex:1 1 220px">
+                <label class="muted">Pricing type</label>
+                <select id="p_pricetype" onchange="toggleAuction(this.value)">
+                  <option value="fixed">Fixed price</option>
+                  <option value="auction">Auction</option>
+                  <option value="swap">Swap / Trade</option>
+                </select>
+              </div>
+              <div style="flex:1 1 220px" id="auctionDueWrap" hidden>
+                <label class="muted">Auction due date</label>
+                <input id="p_due" type="date" />
+              </div>
+            </div>
+            <div class="row" style="gap:10px">
+              <input id="p_images" type="file" multiple accept="image/*"/>
+              <span class="muted">Add images (optional)</span>
+            </div>
+            <div class="row" style="gap:10px; margin-top:6px">
+              <button class="btn neon" onclick="submitListing()">Publish listing</button>
+              <button class="btn secondary" onclick="saveDraft()">Save draft</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="messages" class="view">
+        <div class="row spread" style="margin-bottom:10px">
+          <h3 style="margin:0">Messages</h3>
+          <div class="muted">Newest first</div>
+        </div>
+        <div id="msgList" class="list"></div>
+      </section>
+
+      <section id="profile" class="view">
+        <div class="card">
+          <h3 style="margin:0 0 12px 0">Your profile</h3>
+          <div class="row" style="gap:16px; align-items:flex-start; flex-wrap:wrap">
+            <div class="row" style="gap:12px">
+              <div class="avatar" id="avatar">U</div>
+              <div>
+                <input id="pf_name" type="text" placeholder="Your name"/>
+                <div class="muted" style="margin-top:4px">Member since <span id="pf_since"></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="gap:12px; margin-top:12px; flex-wrap:wrap">
+            <input id="pf_location" type="text" placeholder="Location" style="flex:1 1 200px"/>
+            <input id="pf_university" type="text" placeholder="University" style="flex:1 1 200px"/>
+          </div>
+          <div class="row" style="gap:10px; margin-top:12px">
+            <button class="btn purple" onclick="saveProfile()">Save profile</button>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:16px">
+          <div class="card">
+            <div class="row spread"><div class="muted">Listings online</div><div id="stat_listings">0</div></div>
+          </div>
+          <div class="card">
+            <div class="row spread"><div class="muted">Total favourites</div><div id="stat_favs">0</div></div>
+          </div>
+          <div class="card">
+            <div class="row spread"><div class="muted">Active auctions</div><div id="stat_auctions">0</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Nav -->
+      <nav>
+        <div class="nav-btn active" data-view="home" onclick="switchView(this)">🏠<div>Home</div></div>
+        <div class="nav-btn" data-view="search" onclick="switchView(this)">🔎<div>Search</div></div>
+        <div class="nav-btn" data-view="favourites" onclick="switchView(this)">⭐️<div>Favourites</div></div>
+        <div class="nav-btn" data-view="messages" onclick="switchView(this)">💬<div>Messages</div></div>
+        <div class="nav-btn" data-view="profile" onclick="switchView(this)">👤<div>Profile</div></div>
+      </nav>
+    </main>
+  </div>
+
+  <!-- Listing modal -->
+  <div id="listingModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread">
+        <h3 id="lm_title" style="margin:0"></h3>
+        <button class="btn secondary" onclick="closeModal('listingModal')">Close</button>
+      </div>
+      <div id="lm_desc" class="muted" style="margin:8px 0 14px 0"></div>
+      <div class="row" style="gap:10px; flex-wrap:wrap">
+        <button class="btn neon" id="lm_buy" onclick="buyNow()">Buy now</button>
+        <div class="row" style="gap:8px">
+          <input id="lm_bid_amt" type="number" min="0" step="0.01" placeholder="Your bid" style="width:140px"/>
+          <button class="btn purple" onclick="placeBid()">Place bid</button>
+        </div>
+        <button class="btn secondary" onclick="startChat()">Message seller</button>
+      </div>
+      <div id="lm_meta" class="muted" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- New listing quick modal (shortcut from header) -->
+  <div id="newListingModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread"><h3 style="margin:0">Quick create</h3><button class="btn secondary" onclick="closeModal('newListingModal')">Close</button></div>
+      <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:8px">
+        <input id="q_title" type="text" placeholder="Title" style="flex:2"/>
+        <input id="q_price" type="number" min="0" step="0.01" placeholder="Price" style="flex:1"/>
+        <button class="btn neon" onclick="quickCreate()">Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blackboard modal shortcut -->
+  <div id="announceModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread"><h3 style="margin:0">New announcement</h3><button class="btn secondary" onclick="closeModal('announceModal')">Close</button></div>
+      <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:8px">
+        <input id="a_text" type="text" placeholder="Write something for everyone…" style="flex:2"/>
+        <button class="btn neon" onclick="addAnnouncement(true)">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Simple SPA state & mock data layer ===== */
+    const API_BASE = '/api'; // replace with your Container Apps gateway if needed
+
+    const state = {
+      listings: JSON.parse(localStorage.getItem('cx_listings')||'[]'),
+      favourites: JSON.parse(localStorage.getItem('cx_favs')||'[]'),
+      messages: JSON.parse(localStorage.getItem('cx_msgs')||'[]'),
+      blackboard: JSON.parse(localStorage.getItem('cx_board')||'[]'),
+      profile: JSON.parse(localStorage.getItem('cx_profile')||'null') || { since: new Date().toISOString(), name: '', location:'', university:'', avatar:'' },
+      selected: null,
+    };
+
+    const el = sel => document.querySelector(sel);
+    const els = sel => Array.from(document.querySelectorAll(sel));
+
+    function persist(){
+      localStorage.setItem('cx_listings', JSON.stringify(state.listings));
+      localStorage.setItem('cx_favs', JSON.stringify(state.favourites));
+      localStorage.setItem('cx_msgs', JSON.stringify(state.messages));
+      localStorage.setItem('cx_board', JSON.stringify(state.blackboard));
+      localStorage.setItem('cx_profile', JSON.stringify(state.profile));
+      paint();
+    }
+
+    function switchView(btn){
+      els('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.getAttribute('data-view');
+      els('.view').forEach(v=>v.classList.remove('active'));
+      el('#'+id).classList.add('active');
+      if(id==='favourites') renderFavourites();
+      if(id==='messages') renderMessages();
+      if(id==='profile') renderProfileStats();
+      if(id==='home') renderHome();
+    }
+
+    function paint(){
+      renderHome();
+      renderFavourites();
+      renderMessages();
+      renderProfileStats();
+    }
+
+    /* ===== Home (trending + blackboard) ===== */
+    function addAnnouncement(fromModal){
+      const input = fromModal ? el('#a_text') : el('#blackboardText');
+      const txt = input.value.trim();
+      if(!txt) return;
+      state.blackboard.unshift({ id: crypto.randomUUID(), text: txt, ts: Date.now() });
+      input.value='';
+      persist();
+    }
+    function renderHome(){
+      const board = el('#blackboardList');
+      board.innerHTML = state.blackboard.map(a=>`<div class="list-item"><div>${escapeHtml(a.text)}</div><div class="muted">${timeAgo(a.ts)}</div></div>`).join('') || '<div class="muted">No announcements yet.</div>';
+
+      const trg = el('#trendingGrid');
+      const items = state.listings.slice(0,8);
+      trg.innerHTML = items.map(renderListingCard).join('') || `<div class="muted">No listings yet. Create one from <b>Post</b> or the <b>New Listing</b> button.</div>`;
+    }
+
+    /* ===== Search ===== */
+    function runSearch(){
+      const q = el('#searchInput').value.toLowerCase().trim();
+      const res = !q ? state.listings : state.listings.filter(x=> x.title.toLowerCase().includes(q) || (x.category||'').toLowerCase().includes(q) || (x.desc||'').toLowerCase().includes(q));
+      el('#searchResults').innerHTML = res.map(renderListingCard).join('') || '<div class="muted">No results.</div>';
+    }
+
+    /* ===== Favourites ===== */
+    function toggleFav(id){
+      const i = state.favourites.indexOf(id);
+      if(i>-1) state.favourites.splice(i,1); else state.favourites.push(id);
+      persist();
+    }
+    function isFav(id){ return state.favourites.includes(id) }
+    function clearFavourites(){ state.favourites = []; persist(); }
+    function renderFavourites(){
+      const favs = state.listings.filter(l=> state.favourites.includes(l.id));
+      el('#favGrid').innerHTML = favs.map(renderListingCard).join('') || '<div class="muted">Nothing here yet. Star some results from Search.</div>';
+    }
+
+    /* ===== Post (create listing) ===== */
+    function toggleSeg(elm, key){
+      elm.parentElement.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+      elm.classList.add('active');
+      elm.parentElement.setAttribute('data-val', elm.dataset.val);
+    }
+    function toggleAuction(val){ el('#auctionDueWrap').hidden = (val !== 'auction'); }
+
+    function submitListing(){
+      const title = el('#p_title').value.trim();
+      if(title.length < 3){ alert('Please add a title.'); return; }
+      const listing = {
+        id: crypto.randomUUID(),
+        title,
+        category: el('#p_category').value.trim(),
+        desc: el('#p_desc').value.trim(),
+        price: Number(el('#p_price').value||0),
+        priceType: el('#p_pricetype').value,
+        due: el('#p_due').value || null,
+        seller: state.profile.name || 'Seller',
+        ts: Date.now()
+      };
+      state.listings.unshift(listing);
+      persist();
+      alert('Listing published!');
+      // Switch to search so they can see it
+      els('.nav-btn[data-view="search"]').forEach(b=>b.click());
+      runSearch();
+    }
+    function saveDraft(){ alert('Draft saved locally. (Prototype)'); }
+
+    function quickCreate(){
+      const title = el('#q_title').value.trim();
+      const price = Number(el('#q_price').value||0);
+      if(!title){ alert('Title required'); return; }
+      state.listings.unshift({ id: crypto.randomUUID(), title, price, priceType:'fixed', desc:'', ts:Date.now(), seller: state.profile.name || 'Seller' });
+      el('#q_title').value=''; el('#q_price').value='';
+      closeModal('newListingModal');
+      persist();
+    }
+
+    /* ===== Messages ===== */
+    function renderMessages(){
+      const list = el('#msgList');
+      const rows = state.messages.sort((a,b)=>b.ts-a.ts).map(m=>`
+        <div class="list-item">
+          <div class="row" style="gap:10px">
+            <div class="avatar">${(m.peer||'U').slice(0,1).toUpperCase()}</div>
+            <div>
+              <div><strong>${escapeHtml(m.peer)}</strong></div>
+              <div class="muted">${escapeHtml(m.last)}</div>
+            </div>
+          </div>
+          <div class="muted">${timeAgo(m.ts)}</div>
+        </div>`).join('');
+      list.innerHTML = rows || '<div class="muted">No messages yet.</div>';
+    }
+    function startChat(){
+      if(!state.selected) return;
+      state.messages.unshift({ id: crypto.randomUUID(), peer: state.selected.seller||'Seller', last: `Inquiry about ${state.selected.title}`, ts: Date.now() });
+      closeModal('listingModal');
+      persist();
+      els('.nav-btn[data-view="messages"]').forEach(b=>b.click());
+    }
+
+    /* ===== Listing card & modal ===== */
+    function renderListingCard(l){
+      const fav = isFav(l.id);
+      const priceStr = l.priceType==='auction' ? `Current bid: $${(l.price||0).toFixed(2)}` : (l.priceType==='swap' ? 'Swap / Trade' : `$${(l.price||0).toFixed(2)}`);
+      const badge = l.priceType==='auction' ? `<span class="chip" style="color:var(--purple)">Auction${l.due?` · ends ${l.due}`:''}</span>` : l.priceType==='swap' ? `<span class="chip">Swap</span>` : `<span class="chip">Fixed</span>`;
+      return `<div class="card">
+        <div class="row spread">
+          <div style="font-weight:700">${escapeHtml(l.title)}</div>
+          <button class="seg-btn ${fav?'active':''}" onclick="toggleFav('${l.id}')">${fav?'★':'☆'}</button>
+        </div>
+        <div class="muted">${escapeHtml(l.category||'Misc')}</div>
+        <div class="row spread" style="margin-top:4px">
+          <div style="font-size:18px; font-weight:800">${priceStr}</div>
+          ${badge}
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn neon" onclick='openListing(${JSON.stringify(l.id)})'>View</button>
+        </div>
+      </div>`;
+    }
+
+    function openListing(id){
+      const l = state.listings.find(x=>x.id===id);
+      state.selected = l;
+      el('#lm_title').textContent = l.title;
+      el('#lm_desc').textContent = l.desc || '—';
+      el('#lm_meta').textContent = `${l.priceType.toUpperCase()} • Seller: ${l.seller || 'Seller'} • Posted ${timeAgo(l.ts)}`;
+      el('#lm_bid_amt').value = l.price ? (l.price + 1).toFixed(2) : '';
+      openModal('listingModal');
+    }
+
+    function buyNow(){
+      if(!state.selected) return;
+      alert(`Buy-now initiated for "${state.selected.title}" at $${(state.selected.price||0).toFixed(2)} (prototype).`);
+      closeModal('listingModal');
+    }
+    function placeBid(){
+      if(!state.selected) return;
+      const amt = Number(el('#lm_bid_amt').value||0);
+      if(amt<=0){ alert('Enter a valid bid'); return; }
+      state.selected.price = Math.max(state.selected.price||0, amt);
+      persist();
+      alert('Bid placed (prototype).');
+      closeModal('listingModal');
+    }
+
+    /* ===== Profile ===== */
+    function renderProfileStats(){
+      el('#pf_since').textContent = new Date(state.profile.since).toLocaleDateString();
+      el('#pf_name').value = state.profile.name || '';
+      el('#pf_location').value = state.profile.location || '';
+      el('#pf_university').value = state.profile.university || '';
+      el('#stat_listings').textContent = state.listings.length;
+      el('#stat_favs').textContent = state.favourites.length;
+      el('#stat_auctions').textContent = state.listings.filter(l=>l.priceType==='auction').length;
+      el('#avatar').textContent = (state.profile.name||'U').slice(0,1).toUpperCase();
+    }
+    function saveProfile(){
+      state.profile.name = el('#pf_name').value.trim();
+      state.profile.location = el('#pf_location').value.trim();
+      state.profile.university = el('#pf_university').value.trim();
+      persist();
+      alert('Profile saved.');
+    }
+
+    /* ===== Nav + Modal helpers ===== */
+    function openModal(id){ el('#'+id).style.display='flex'; }
+    function closeModal(id){ el('#'+id).style.display='none'; }
+    function backdropClose(e){ if(e.target.classList.contains('modal')) e.target.style.display='none'; }
+
+    /* ===== Utils ===== */
+    function timeAgo(ts){
+      const s = Math.floor((Date.now()-ts)/1000);
+      if(s<60) return `${s}s ago`;
+      const m = Math.floor(s/60); if(m<60) return `${m}m ago`;
+      const h = Math.floor(m/60); if(h<24) return `${h}h ago`;
+      const d = Math.floor(h/24); return `${d}d ago`;
+    }
+    function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+    /* ===== Seed demo data on first load ===== */
+    if(state.listings.length===0){
+      state.listings = [
+        {id:crypto.randomUUID(), title:'Concert Ticket – Front Row', category:'Events', desc:'One ticket, tomorrow night.', price:85, priceType:'auction', due: new Date(Date.now()+86400000).toISOString().slice(0,10), seller:'Alex', ts: Date.now()-3600_000},
+        {id:crypto.randomUUID(), title:'Textbook: Microeconomics', category:'Books', desc:'Lightly used, highlights in Chapter 3.', price:25, priceType:'fixed', seller:'Sam', ts: Date.now()-7200_000},
+        {id:crypto.randomUUID(), title:'Swap: Calculus notes for Stats notes', category:'Swap', desc:'Great summaries.', price:0, priceType:'swap', seller:'Riley', ts: Date.now()-17200_000}
+      ];
+    }
+
+    paint();
+  </script>
+</body>
+</html>
 
