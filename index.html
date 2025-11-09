@@ -115,7 +115,7 @@
 
     <main>
       <!-- AUTH (landing) -->
-      <section id="auth" class="view active">
+      <section id="auth" class="view">
         <div class="hero reveal">
           <span class="pill">connectr+ marketplace</span>
           <div class="headline">Sign in to connect, sell, and bid.</div>
@@ -143,7 +143,7 @@
         </div>
       </section>
 
-      <section id="home" class="view active">
+      <section id="home" class="view active active">
         <div class="hero reveal">
           <span class="pill">connectr+ marketplace</span>
           <div class="headline">Find it. Bid it. <span style="color:var(--neon)">Connect</span> it.</div>
@@ -317,17 +317,41 @@
   </div>
 
   <script>
+    // --- minimal in-page error surface ---
+    window.addEventListener('error', (e)=>{
+      const bar=document.createElement('div');
+      bar.style.cssText='position:fixed;left:0;right:0;bottom:0;background:#7f1d1d;color:#fff;padding:8px 12px;z-index:9999;font:12px monospace;';
+      bar.textContent='JS error: '+(e.error?.message||e.message);
+      document.body.appendChild(bar);
+    });
+
+    // UUID polyfill for older Safari
+    if(!(window.crypto && crypto.randomUUID)){
+      crypto.randomUUID = function(){
+        const s = crypto.getRandomValues(new Uint8Array(16));
+        s[6] = (s[6] & 0x0f) | 0x40; // version 4
+        s[8] = (s[8] & 0x3f) | 0x80; // variant
+        const h = [...s].map(b=>b.toString(16).padStart(2,'0')).join('');
+        return `${h.substr(0,8)}-${h.substr(8,4)}-${h.substr(12,4)}-${h.substr(16,4)}-${h.substr(20)}`;
+      }
+    }
+
     const API_BASE = '/api';
-    const state = {
-      user: JSON.parse(localStorage.getItem('cx_user')||'null'), // {id,name,email}
-      listings: JSON.parse(localStorage.getItem('cx_listings')||'[]'),
-      favourites: JSON.parse(localStorage.getItem('cx_favs')||'[]'),
-      messages: JSON.parse(localStorage.getItem('cx_msgs')||'[]'), // [{id,peer,last,ts,thread:[]}]
-      blackboard: JSON.parse(localStorage.getItem('cx_board')||'[]'), // [{id,text,img,ts,authorId,angle}]
-      profile: JSON.parse(localStorage.getItem('cx_profile')||'null') || { since: new Date().toISOString(), name: '', location:'', university:'', avatar:'' },
-      selected: null,
-      openChatId: null,
-    };
+    let state;
+    try{
+      state = {
+        user: JSON.parse(localStorage.getItem('cx_user')||'null'),
+        listings: JSON.parse(localStorage.getItem('cx_listings')||'[]'),
+        favourites: JSON.parse(localStorage.getItem('cx_favs')||'[]'),
+        messages: JSON.parse(localStorage.getItem('cx_msgs')||'[]'),
+        blackboard: JSON.parse(localStorage.getItem('cx_board')||'[]'),
+        profile: JSON.parse(localStorage.getItem('cx_profile')||'null') || { since: new Date().toISOString(), name: '', location:'', university:'', avatar:'' },
+        selected: null,
+        openChatId: null,
+      };
+    }catch(err){
+      console.error('state load failed', err); state={user:null,listings:[],favourites:[],messages:[],blackboard:[],profile:{since:new Date().toISOString()}};
+    }
 
     const el = sel => document.querySelector(sel);
     const els = sel => Array.from(document.querySelectorAll(sel));
@@ -495,7 +519,13 @@
     if(state.listings.length===0){ state.listings=[ {id:crypto.randomUUID(), title:'Concert Ticket – Front Row', category:'Events', desc:'One ticket, tomorrow night.', price:85, priceType:'auction', due:new Date(Date.now()+86400000).toISOString().slice(0,10), seller:'Alex', ts: Date.now()-3600_000}, {id:crypto.randomUUID(), title:'Textbook: Microeconomics', category:'Books', desc:'Lightly used, highlights in Chapter 3.', price:25, priceType:'fixed', seller:'Sam', ts: Date.now()-7200_000}, {id:crypto.randomUUID(), title:'Swap: Calculus notes for Stats notes', category:'Swap', desc:'Great summaries.', price:0, priceType:'swap', seller:'Riley', ts: Date.now()-17200_000} ]; }
     if(state.messages.length===0){ state.messages=[ {id:crypto.randomUUID(), peer:'Alex', last:'Tickets still available?', ts:Date.now()-200000, thread:[{from:'them',text:'Hey! Are you interested in the ticket?',ts:Date.now()-300000}] } ]; }
 
-    paint();
+    function init(){
+      // Seed demo if empty
+      if(state.listings.length===0){ state.listings=[ {id:crypto.randomUUID(), title:'Concert Ticket – Front Row', category:'Events', desc:'One ticket, tomorrow night.', price:85, priceType:'auction', due:new Date(Date.now()+86400000).toISOString().slice(0,10), seller:'Alex', ts: Date.now()-3600_000}, {id:crypto.randomUUID(), title:'Textbook: Microeconomics', category:'Books', desc:'Lightly used, highlights in Chapter 3.', price:25, priceType:'fixed', seller:'Sam', ts: Date.now()-7200_000}, {id:crypto.randomUUID(), title:'Swap: Calculus notes for Stats notes', category:'Swap', desc:'Great summaries.', price:0, priceType:'swap', seller:'Riley', ts: Date.now()-17200_000} ]; }
+      if(state.messages.length===0){ state.messages=[ {id:crypto.randomUUID(), peer:'Alex', last:'Tickets still available?', ts:Date.now()-200000, thread:[{from:'them',text:'Hey! Are you interested in the ticket?',ts:Date.now()-300000}] } ]; }
+      paint();
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   </script>
 </body>
 </html>
