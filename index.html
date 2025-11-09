@@ -311,7 +311,9 @@
     }
 
     function go(view){
-      const btn = els(`.nav-btn[data-view="${view}"]`)[0];
+      // Directly switch to any view id (even if there is no nav button for it)
+      showView(view);
+    }"]`)[0];
       if(btn) switchView(btn);
     }
 
@@ -319,14 +321,17 @@
       els('.nav-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       const id = btn.getAttribute('data-view');
+      showView(id);
+    }
+    function showView(id){
       els('.view').forEach(v=>v.classList.remove('active'));
-      el('#'+id).classList.add('active');
+      const target = el('#'+id);
+      if(target){ target.classList.add('active'); }
       if(id==='favourites') renderFavourites();
       if(id==='messages') renderMessages();
       if(id==='profile') renderProfileStats();
       if(id==='home') renderHome();
       if(id==='search') runSearch();
-      // reveal on switch
       observeAll();
     }
 
