@@ -99,6 +99,7 @@
   </style>
 </head>
 <body>
+  <div id="guard" style="display:none"></div>
   <div class="app">
     <header>
       <div class="brand">
@@ -113,7 +114,35 @@
     </header>
 
     <main>
-      <!-- HOME -->
+      <!-- AUTH (landing) -->
+      <section id="auth" class="view active">
+        <div class="hero reveal">
+          <span class="pill">connectr+ marketplace</span>
+          <div class="headline">Sign in to connect, sell, and bid.</div>
+          <p class="sub">Browse anything as a guest. To message sellers, buy now, or place bids, create an account or sign in.</p>
+        </div>
+        <div class="grid">
+          <div class="card reveal">
+            <h3 style="margin:0 0 10px 0">Create account</h3>
+            <div class="row" style="gap:10px;flex-wrap:wrap">
+              <input id="su_name" type="text" placeholder="Full name"/>
+              <input id="su_email" type="text" placeholder="Email"/>
+              <input id="su_pass" type="password" placeholder="Password"/>
+            </div>
+            <div class="row" style="gap:10px"><button class="btn neon" onclick="signup()">Create account</button></div>
+            <div class="muted">Accounts are stored securely by the backend (Azure Entra/B2C). Secrets live in Key Vault.</div>
+          </div>
+          <div class="card reveal">
+            <h3 style="margin:0 0 10px 0">Sign in</h3>
+            <div class="row" style="gap:10px;flex-wrap:wrap">
+              <input id="li_email" type="text" placeholder="Email"/>
+              <input id="li_pass" type="password" placeholder="Password"/>
+            </div>
+            <div class="row" style="gap:10px"><button class="btn purple" onclick="login()">Sign in</button><button class="btn" onclick="continueGuest()">Continue as guest</button></div>
+          </div>
+        </div>
+      </section>
+
       <section id="home" class="view active">
         <div class="hero reveal">
           <span class="pill">connectr+ marketplace</span>
@@ -125,8 +154,9 @@
           <span class="pin">Announcements</span>
           <h3>Campus Blackboard</h3>
           <div id="blackboardList" class="board-notes"></div>
-          <div class="row" style="margin-top:10px">
+          <div class="row" style="margin-top:10px; align-items:flex-start; gap:10px">
             <input id="blackboardText" type="text" placeholder="Share an announcement…"/>
+            <input id="blackboardImg" type="file" accept="image/*"/>
             <button class="btn purple" onclick="addAnnouncement()">Pin to board</button>
           </div>
         </div>
@@ -289,10 +319,11 @@
   <script>
     const API_BASE = '/api';
     const state = {
+      user: JSON.parse(localStorage.getItem('cx_user')||'null'), // {id,name,email}
       listings: JSON.parse(localStorage.getItem('cx_listings')||'[]'),
       favourites: JSON.parse(localStorage.getItem('cx_favs')||'[]'),
-      messages: JSON.parse(localStorage.getItem('cx_msgs')||'[]'), // [{id,peer,last,ts,thread:[{from:'me'|'them',text,ts}]}]
-      blackboard: JSON.parse(localStorage.getItem('cx_board')||'[]'),
+      messages: JSON.parse(localStorage.getItem('cx_msgs')||'[]'), // [{id,peer,last,ts,thread:[]}]
+      blackboard: JSON.parse(localStorage.getItem('cx_board')||'[]'), // [{id,text,img,ts,authorId,angle}]
       profile: JSON.parse(localStorage.getItem('cx_profile')||'null') || { since: new Date().toISOString(), name: '', location:'', university:'', avatar:'' },
       selected: null,
       openChatId: null,
@@ -302,6 +333,7 @@
     const els = sel => Array.from(document.querySelectorAll(sel));
 
     function persist(){
+      localStorage.setItem('cx_user', JSON.stringify(state.user));
       localStorage.setItem('cx_listings', JSON.stringify(state.listings));
       localStorage.setItem('cx_favs', JSON.stringify(state.favourites));
       localStorage.setItem('cx_msgs', JSON.stringify(state.messages));
@@ -311,9 +343,7 @@
     }
 
     function go(view){
-      // Directly switch to any view id (even if there is no nav button for it)
-      showView(view);
-    }"]`)[0];
+      const btn = els(`.nav-btn[data-view="${view}"]`)[0];
       if(btn) switchView(btn);
     }
 
@@ -321,17 +351,19 @@
       els('.nav-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       const id = btn.getAttribute('data-view');
-      showView(id);
-    }
-    function showView(id){
       els('.view').forEach(v=>v.classList.remove('active'));
-      const target = el('#'+id);
-      if(target){ target.classList.add('active'); }
+      el('#'+id).classList.add('active');
       if(id==='favourites') renderFavourites();
       if(id==='messages') renderMessages();
       if(id==='profile') renderProfileStats();
       if(id==='home') renderHome();
       if(id==='search') runSearch();
+      // gate: if not logged in and trying to go to restricted views
+      if(!state.user && (id==='messages' || id==='profile' || id==='post')){
+        els('.view').forEach(v=>v.classList.remove('active'));
+        el('#auth').classList.add('active');
+        els('.nav-btn').forEach(b=>b.classList.remove('active'));
+      }
       observeAll();
     }
 
@@ -340,16 +372,33 @@
     /* ===== Hero + Blackboard ===== */
     function addAnnouncement(){
       const input = el('#blackboardText');
+      const file = el('#blackboardImg').files[0];
       const txt = input.value.trim();
-      if(!txt) return;
+      if(!txt && !file) return;
       const angle = (Math.random()*8-4).toFixed(2);
-      state.blackboard.unshift({ id: crypto.randomUUID(), text: txt, ts: Date.now(), angle });
-      input.value='';
+      const note = { id: crypto.randomUUID(), text: txt, ts: Date.now(), angle, authorId: state.user?.id || null };
+      if(file){ note.img = URL.createObjectURL(file); }
+      state.blackboard.unshift(note);
+      input.value=''; el('#blackboardImg').value='';
       persist();
     }
     function renderHome(){
       const board = el('#blackboardList');
-      board.innerHTML = state.blackboard.map(a=>`<div class="note" style="transform:rotate(${a.angle||0}deg)"><div>${escapeHtml(a.text)}</div><div class="meta">${timeAgo(a.ts)}</div></div>`).join('') || '<div class="muted">No announcements yet.</div>';
+      board.innerHTML = state.blackboard.map(a=>`<div class="note" style="transform:rotate(${a.angle||0}deg)">
+        ${a.img?`<img src="${a.img}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px">`:''}
+        <div>${escapeHtml(a.text||'')}</div>
+        <div class="meta">${timeAgo(a.ts)}${(state.user && a.authorId && state.user.id===a.authorId)?' • you':''}</div>
+        ${(state.user && a.authorId && state.user.id===a.authorId)?`<div class="row" style="margin-top:8px"><button class="btn" onclick="deleteNote('${a.id}')">Delete</button></div>`:''}
+      </div>`).join('') || '<div class="muted">No announcements yet.</div>';
+      const trg = el('#trendingGrid');
+      const items = state.listings.slice(0,8);
+      trg.innerHTML = items.map(renderListingCard).join('') || `<div class="muted">No listings yet. Create one from <b>Post</b>.</div>`;
+    }deg)">
+        ${a.img?`<img src="${a.img}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px">`:''}
+        <div>${escapeHtml(a.text||'')}</div>
+        <div class="meta">${timeAgo(a.ts)}${a.authorId? ' • you' : ''}</div>
+        ${(state.user && a.authorId && state.user.id===a.authorId)?`<div class="row" style="margin-top:8px"><button class="btn" onclick="deleteNote('${a.id}')">Delete</button></div>`:''}
+      </div>`).join('') || '<div class="muted">No announcements yet.</div>';
       const trg = el('#trendingGrid');
       const items = state.listings.slice(0,8);
       trg.innerHTML = items.map(renderListingCard).join('') || `<div class="muted">No listings yet. Create one from <b>Post</b>.</div>`;
@@ -393,9 +442,9 @@
         </div>`).join('');
       list.innerHTML = rows || '<div class="muted">No messages yet.</div>';
     }
-    function startChat(){ if(!state.selected) return; const id=crypto.randomUUID(); state.messages.unshift({ id, peer: state.selected.seller||'Seller', last:`Inquiry about ${state.selected.title}`, ts: Date.now(), thread:[{from:'me',text:`Hi! Is "${state.selected.title}" available?`, ts:Date.now()}]}); persist(); closeModal('listingModal'); openChat(id); }
+    function startChat(){ if(!state.user){ alert('Please sign in to message sellers.'); return; } if(!state.selected) return; const id=crypto.randomUUID(); state.messages.unshift({ id, peer: state.selected.seller||'Seller', last:`Inquiry about ${state.selected.title}`, ts: Date.now(), thread:[{from:'me',text:`Hi! Is "${state.selected.title}" available?`, ts:Date.now()}]}); persist(); closeModal('listingModal'); openChat(id); }
     function openChat(id){ const m=state.messages.find(x=>x.id===id); if(!m) return; state.openChatId=id; el('#chatTitle').textContent=m.peer; const box=el('#chatThread'); box.innerHTML=m.thread.map(t=>`<div style="display:flex; ${t.from==='me'?'justify-content:flex-end':''}"><div class="bubble ${t.from==='me'?'me':'them'}">${escapeHtml(t.text)}</div></div>`).join(''); openModal('chatModal'); box.scrollTop=box.scrollHeight; }
-    function sendChat(){ const msg=el('#chatInput').value.trim(); if(!msg) return; const m=state.messages.find(x=>x.id===state.openChatId); m.thread.push({from:'me', text:msg, ts:Date.now()}); m.last=msg; m.ts=Date.now(); el('#chatInput').value=''; persist(); openChat(m.id); }
+    function sendChat(){ if(!state.user){ alert('Sign in to send messages.'); return; } const msg=el('#chatInput').value.trim(); if(!msg) return; const m=state.messages.find(x=>x.id===state.openChatId); m.thread.push({from:'me', text:msg, ts:Date.now()}); m.last=msg; m.ts=Date.now(); el('#chatInput').value=''; persist(); openChat(m.id); }
 
     /* ===== Listing card & modal ===== */
     function renderListingCard(l){
@@ -418,14 +467,15 @@
       </div>`;
     }
     function openListing(id){ const l=state.listings.find(x=>x.id===id); state.selected=l; el('#lm_title').textContent=l.title; el('#lm_desc').textContent=l.desc||'—'; el('#lm_meta').textContent=`${l.priceType.toUpperCase()} • Seller: ${l.seller||'Seller'} • Posted ${timeAgo(l.ts)}`; el('#lm_bid_amt').value = l.price ? (l.price + 1).toFixed(2) : ''; openModal('listingModal'); }
-    function buyNow(){ if(!state.selected) return; alert(`Buy-now initiated for "${state.selected.title}" at $${(state.selected.price||0).toFixed(2)} (prototype).`); closeModal('listingModal'); }
-    function placeBid(){ if(!state.selected) return; const amt=Number(el('#lm_bid_amt').value||0); if(amt<=0){alert('Enter a valid bid');return} state.selected.price=Math.max(state.selected.price||0,amt); persist(); alert('Bid placed (prototype).'); closeModal('listingModal'); }
+    function buyNow(){ if(!state.selected) return; if(!state.user){ alert('Please sign in to buy.'); return; } alert(`Buy-now initiated for "${state.selected.title}" at $${(state.selected.price||0).toFixed(2)} (prototype).`); closeModal('listingModal'); }" at $${(state.selected.price||0).toFixed(2)} (prototype).`); closeModal('listingModal'); }
+    function placeBid(){ if(!state.selected) return; if(!state.user){ alert('Please sign in to place bids.'); return; } const amt=Number(el('#lm_bid_amt').value||0); if(amt<=0){alert('Enter a valid bid');return} state.selected.price=Math.max(state.selected.price||0,amt); persist(); alert('Bid placed (prototype).'); closeModal('listingModal'); } state.selected.price=Math.max(state.selected.price||0,amt); persist(); alert('Bid placed (prototype).'); closeModal('listingModal'); }
 
     /* ===== Profile ===== */
     function renderProfileStats(){ el('#pf_since').textContent=new Date(state.profile.since).toLocaleDateString(); el('#pf_name').value=state.profile.name||''; el('#pf_location').value=state.profile.location||''; el('#pf_university').value=state.profile.university||''; el('#stat_listings').textContent=state.listings.length; el('#stat_favs').textContent=state.favourites.length; el('#stat_auctions').textContent=state.listings.filter(l=>l.priceType==='auction').length; el('#avatar').textContent=(state.profile.name||'U').slice(0,1).toUpperCase(); }
     function saveProfile(){ state.profile.name=el('#pf_name').value.trim(); state.profile.location=el('#pf_location').value.trim(); state.profile.university=el('#pf_university').value.trim(); persist(); alert('Profile saved.'); }
 
     /* ===== Modal + reveal helpers ===== */
+    function deleteNote(id){ const i=state.blackboard.findIndex(n=>n.id===id); if(i>-1) state.blackboard.splice(i,1); persist(); }
     function openModal(id){ el('#'+id).style.display='flex'; }
     function closeModal(id){ el('#'+id).style.display='none'; }
     function backdropClose(e){ if(e.target.classList.contains('modal')) e.target.style.display='none'; }
@@ -435,6 +485,12 @@
 
     function observeAll(){ const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),{threshold:.12}); els('.reveal').forEach(n=>io.observe(n)); }
 
+    /* ===== Auth (prototype) ===== */
+    function signup(){ const name=el('#su_name').value.trim(); const email=el('#su_email').value.trim(); const pass=el('#su_pass').value; if(!name||!email||!pass){alert('Fill all fields');return} state.user={id:crypto.randomUUID(),name,email}; state.profile.name=name; state.profile.since=new Date().toISOString(); persist(); go('home'); }
+    function login(){ const email=el('#li_email').value.trim(); const pass=el('#li_pass').value; if(!email||!pass){alert('Enter email and password');return} // prototype login
+      state.user={id:state.user?.id||crypto.randomUUID(), name: state.profile.name||'User', email}; persist(); go('home'); }
+    function continueGuest(){ state.user=null; els('.view').forEach(v=>v.classList.remove('active')); el('#home').classList.add('active'); observeAll(); }
+
     /* Seed demo data */
     if(state.listings.length===0){ state.listings=[ {id:crypto.randomUUID(), title:'Concert Ticket – Front Row', category:'Events', desc:'One ticket, tomorrow night.', price:85, priceType:'auction', due:new Date(Date.now()+86400000).toISOString().slice(0,10), seller:'Alex', ts: Date.now()-3600_000}, {id:crypto.randomUUID(), title:'Textbook: Microeconomics', category:'Books', desc:'Lightly used, highlights in Chapter 3.', price:25, priceType:'fixed', seller:'Sam', ts: Date.now()-7200_000}, {id:crypto.randomUUID(), title:'Swap: Calculus notes for Stats notes', category:'Swap', desc:'Great summaries.', price:0, priceType:'swap', seller:'Riley', ts: Date.now()-17200_000} ]; }
     if(state.messages.length===0){ state.messages=[ {id:crypto.randomUUID(), peer:'Alex', last:'Tickets still available?', ts:Date.now()-200000, thread:[{from:'them',text:'Hey! Are you interested in the ticket?',ts:Date.now()-300000}] } ]; }
@@ -442,4 +498,4 @@
     paint();
   </script>
 </body>
-</html>
+</html
