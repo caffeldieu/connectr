@@ -924,13 +924,27 @@
         - POST /api/chat/messages   -> chat-svc send message
         - GET  /api/chat/messages?roomId=... -> chat-svc list messages
     */
-    const API_AUTH_REGISTER = '/api/auth/register';
-    const API_AUTH_LOGIN    = '/api/auth/login';
-    const API_AUTH_ME       = '/api/auth/me';
+    /*
+      ==== API ENDPOINTS – CURRENT WIRING ====
+      Auth goes directly to auth-svc. Listings & chat still use /api
+      (you can later point /api to a BFF or directly to the container apps).
+    */
+
+    // === AUTH SERVICE (auth-svc) ===
+    const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+
+    // These paths must match your FastAPI routes in auth-svc
+    // If your code uses different paths (e.g. /users/register), just change the endings.
+    const API_AUTH_REGISTER = `${AUTH_BASE}/register`;
+    const API_AUTH_LOGIN    = `${AUTH_BASE}/login`;
+    const API_AUTH_ME       = `${AUTH_BASE}/me`;
+
+    // === LISTINGS + CHAT (still via /api for now) ===
     const API_LISTINGS      = '/api/listings';
     const API_BUY           = id => `/api/listings/${id}/buy`;
     const API_CHAT_ROOMS    = '/api/chat/rooms';
     const API_CHAT_MESSAGES = '/api/chat/messages';
+
 
     const state = {
       user: null,
