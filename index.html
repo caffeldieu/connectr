@@ -1140,16 +1140,22 @@
       }
 
       try{
-        const res = await fetch(API_AUTH_REGISTER,{
+          const res = await fetch(API_AUTH_REGISTER,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({name,email,password:pwd,university:uni})
         });
+
+        const rawText = await res.text();
+        console.log('REGISTER response status:', res.status);
+        console.log('REGISTER response body:', rawText);
+
         if(!res.ok){
-          const t = await res.text();
-          throw new Error(t || 'Registration failed');
+          throw new Error(rawText || 'Registration failed');
         }
-        const data = await res.json();
+
+        const data = rawText ? JSON.parse(rawText) : {};
+
         // Expecting { user:{...}, token:"..." } (or similar)
         state.user = data.user || null;
         state.token = data.token || null;
