@@ -930,14 +930,13 @@
       (you can later point /api to a BFF or directly to the container apps).
     */
 
-    // === AUTH SERVICE (auth-svc) ===
     const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    
+    // match exactly what you see in /docs
+    const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
+    const API_AUTH_LOGIN    = `${AUTH_BASE}/auth/login`;
+    const API_AUTH_ME       = `${AUTH_BASE}/auth/me`;
 
-    // These paths must match your FastAPI routes in auth-svc
-    // If your code uses different paths (e.g. /users/register), just change the endings.
-    const API_AUTH_REGISTER = `${AUTH_BASE}/register`;
-    const API_AUTH_LOGIN    = `${AUTH_BASE}/login`;
-    const API_AUTH_ME       = `${AUTH_BASE}/me`;
 
     // === LISTINGS + CHAT (still via /api for now) ===
     const API_LISTINGS      = '/api/listings';
