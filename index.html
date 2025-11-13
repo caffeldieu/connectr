@@ -911,16 +911,29 @@
     /*
       ==== API ENDPOINTS ====
     */
+    /*
+      ==== API ENDPOINTS ====
+      Replace <LISTINGS_FQDN> and <CHAT_FQDN> with the real values
+      from `az containerapp show ...`.
+    */
     const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-
+    
+    // BACKEND FQDNs
+    const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    const CHAT_BASE     = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    
     const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
     const API_AUTH_LOGIN    = `${AUTH_BASE}/auth/login`;
     const API_AUTH_ME       = `${AUTH_BASE}/auth/me`;
+    
+    // Listings service
+    const API_LISTINGS = `${LISTINGS_BASE}/listings`;
+    const API_BUY      = id => `${LISTINGS_BASE}/listings/${id}/buy`;
+    
+    // Chat service (when you hook it up for real)
+    const API_CHAT_ROOMS    = `${CHAT_BASE}/private/rooms`;
+    const API_CHAT_MESSAGES = `${CHAT_BASE}/private/messages`;
 
-    const API_LISTINGS      = '/api/listings';
-    const API_BUY           = id => `/api/listings/${id}/buy`;
-    const API_CHAT_ROOMS    = '/api/chat/rooms';
-    const API_CHAT_MESSAGES = '/api/chat/messages';
 
     const state = {
       user: null,
