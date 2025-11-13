@@ -1123,7 +1123,7 @@
       }
     }
 
-    async function submitRegister(){
+        async function submitRegister(){
       const name = el('#reg_name').value.trim();
       const email = el('#reg_email').value.trim();
       const pwd   = el('#reg_password').value.trim();
@@ -1139,7 +1139,7 @@
       }
 
       try{
-          const res = await fetch(API_AUTH_REGISTER,{
+        const res = await fetch(API_AUTH_REGISTER,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({name,email,password:pwd,university:uni})
@@ -1150,26 +1150,34 @@
         console.log('REGISTER response body:', rawText);
 
         if(!res.ok){
-          throw new Error(rawText || 'Registration failed');
+          // Try to surface a clearer backend error if possible
+          let msg = 'Could not create account. Please try a different email.';
+          try{
+            const data = rawText ? JSON.parse(rawText) : null;
+            if(data && data.detail){
+              msg = typeof data.detail === 'string'
+                ? data.detail
+                : JSON.stringify(data.detail);
+            }
+          }catch(_) {}
+          errEl.textContent = msg;
+          errEl.style.display='block';
+          return;
         }
 
-        const data = rawText ? JSON.parse(rawText) : {};
+        // Success – backend registered the user.
+        // It only returns {status,email}, so we DO NOT try to auto-login here.
+        alert('Account created successfully. Please log in with your new email and password.');
+        // Switch modal to "Log in" tab
+        switchAuthMode('login');
 
-        // Expecting { user:{...}, token:"..." } (or similar)
-        state.user = data.user || null;
-        state.token = data.token || null;
-        if(!state.token) throw new Error('Missing token in response');
-        persistAuth();
-        updateAuthUI();
-        closeModal('authModal');
-        await loadListings();
-        alert('Welcome to connectr+ ✨');
       }catch(e){
-        errEl.textContent='Could not create account. This email might already be in use.';
-        errEl.style.display='block';
         console.error(e);
+        errEl.textContent='Could not create account. Please try again.';
+        errEl.style.display='block';
       }
     }
+
 
     function onRequireAuth(action){
       if(!isAuthed()){
