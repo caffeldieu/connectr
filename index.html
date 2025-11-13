@@ -1082,20 +1082,17 @@
         eyebrow.textContent='Welcome back';
       }
     }
-
-    async function submitLogin(){
+async function submitLogin(){
       const email = el('#login_email').value.trim();
       const pwd   = el('#login_password').value.trim();
       const errEl = el('#loginError');
       errEl.style.display='none';
       errEl.textContent='';
-
       if(!email || !pwd){
         errEl.textContent='Please enter email and password.';
         errEl.style.display='block';
         return;
       }
-
       try{
         const res = await fetch(API_AUTH_LOGIN,{
           method:'POST',
@@ -1107,10 +1104,16 @@
           throw new Error(t || 'Login failed');
         }
         const data = await res.json();
-        // Expecting { user:{...}, token:"..." }
-        state.user = data.user || null;
-        state.token = data.token || null;
+        // Backend returns { access_token, token_type }
+        state.token = data.access_token || data.token || null;
         if(!state.token) throw new Error('Missing token in response');
+        
+        // Fetch user info after successful login
+        await fetchMe();
+        if(!state.user){
+          throw new Error('Could not fetch user information');
+        }
+        
         persistAuth();
         updateAuthUI();
         closeModal('authModal');
