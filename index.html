@@ -1094,22 +1094,32 @@ async function submitLogin(){
         return;
       }
       try{
+        console.log('Attempting login for:', email);
         const res = await fetch(API_AUTH_LOGIN,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({email,password:pwd})
         });
+        console.log('Login response status:', res.status);
+        const rawText = await res.text();
+        console.log('Login response body:', rawText);
+        
         if(!res.ok){
-          const t = await res.text();
-          throw new Error(t || 'Login failed');
+          throw new Error(rawText || 'Login failed');
         }
-        const data = await res.json();
+        const data = JSON.parse(rawText);
+        console.log('Parsed login data:', data);
+        
         // Backend returns { access_token, token_type }
         state.token = data.access_token || data.token || null;
+        console.log('Extracted token:', state.token ? state.token.substring(0, 20) + '...' : 'null');
+        
         if(!state.token) throw new Error('Missing token in response');
         
         // Fetch user info after successful login
         await fetchMe();
+        console.log('User after fetchMe:', state.user);
+        
         if(!state.user){
           throw new Error('Could not fetch user information');
         }
@@ -1120,9 +1130,9 @@ async function submitLogin(){
         await loadListings();
         alert('Logged in successfully.');
       }catch(e){
-        errEl.textContent = 'Login failed. Please check your credentials.';
+        console.error('Login error:', e);
+        errEl.textContent = 'Login failed: ' + e.message;
         errEl.style.display='block';
-        console.error(e);
       }
     }
 
