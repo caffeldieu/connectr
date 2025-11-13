@@ -955,32 +955,35 @@
     }
 
    async function fetchMe(){
-    if(!state.token) {
-      console.log('fetchMe: No token available');
-      return;
-    }
-    try{
-      console.log('fetchMe: Fetching user with token:', state.token.substring(0, 20) + '...');
-      const res = await fetch(API_AUTH_ME,{
-        headers:{'Authorization':'Bearer '+state.token}
-      });
-      console.log('fetchMe: Response status:', res.status);
-      
-      if(!res.ok) {
-        throw new Error(`/auth/me failed with status ${res.status}`);
-      }
-      
-      const data = await res.json();
-      console.log('fetchMe: Parsed user data:', data);
-      state.user = data;
-      console.log('fetchMe: state.user set to:', state.user);
-    }catch(e){
-      console.error('fetchMe: Error occurred:', e);
-      state.user = null;
-      state.token = null;
-      localStorage.removeItem('cx_auth');
-    }
+  if(!state.token) {
+    console.log('fetchMe: No token available');
+    return;
   }
+  try{
+    console.log('fetchMe: Fetching user with token:', state.token.substring(0, 20) + '...');
+    const res = await fetch(API_AUTH_ME,{
+      headers:{'Authorization':'Bearer ' + state.token}  // Make sure there's a space after Bearer
+    });
+    console.log('fetchMe: Response status:', res.status);
+    
+    const rawText = await res.text();
+    console.log('fetchMe: Response body:', rawText);
+    
+    if(!res.ok) {
+      throw new Error(`/auth/me failed with status ${res.status}: ${rawText}`);
+    }
+    
+    const data = JSON.parse(rawText);
+    console.log('fetchMe: Parsed user data:', data);
+    state.user = data;
+    console.log('fetchMe: state.user set to:', state.user);
+  }catch(e){
+    console.error('fetchMe: Error occurred:', e);
+    state.user = null;
+    state.token = null;
+    localStorage.removeItem('cx_auth');
+  }
+}
 
     function updateAuthUI(){
       const container = el('#headerAuth');
