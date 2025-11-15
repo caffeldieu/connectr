@@ -737,4 +737,1216 @@
             </div>
             <div class="muted">Browse now – log in later to buy.</div>
           </div>
-          <div id="trendingGrid" class="grid" style="margin-top:10
+          <div id="trendingGrid" class="grid" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- SEARCH -->
+      <section id="search" class="view">
+        <div class="card reveal">
+          <div class="row" style="gap:10px;align-items:flex-end;flex-wrap:wrap;">
+            <div style="flex:1 1 240px;">
+              <label>Search marketplace</label>
+              <input id="searchInput" type="text" placeholder="Search by keyword, category, or description…"/>
+            </div>
+            <div style="flex:0 0 auto;display:flex;gap:8px;">
+              <button class="btn purple" onclick="runSearch()">Search</button>
+              <button class="btn ghost" onclick="clearSearch()">Clear</button>
+            </div>
+          </div>
+          <div class="muted" style="font-size:12px;margin-top:6px;">
+            You can look around without an account. To post, favourite, message or buy, please log in.
+          </div>
+        </div>
+        <div id="searchResults" class="grid reveal" style="margin-top:16px"></div>
+      </section>
+
+      <!-- FAVOURITES -->
+      <section id="favourites" class="view">
+        <div class="row spread reveal" style="margin-bottom:12px">
+          <h3 style="margin:0">Your favourites</h3>
+          <button class="btn small" onclick="clearFavourites()">Clear all</button>
+        </div>
+        <div id="favGrid" class="grid reveal"></div>
+      </section>
+
+      <!-- POST -->
+      <section id="post" class="view">
+        <div class="card reveal">
+          <div class="row spread" style="margin-bottom:4px;">
+            <h3 style="margin:0 0 8px 0">Create a listing</h3>
+            <div class="muted" style="font-size:12px;">Share something you want to sell or pass on.</div>
+          </div>
+          <div class="grid" style="grid-template-columns:1fr;">
+            <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap">
+              <div style="flex:1 1 320px">
+                <label>Title</label>
+                <input id="p_title" type="text" placeholder="Give your listing a clear title"/>
+              </div>
+              <div style="flex:1 1 220px">
+                <label>Category</label>
+                <input id="p_category" type="text" placeholder="e.g. Textbooks, Electronics, Tickets…"/>
+              </div>
+            </div>
+            <div>
+              <label>Description</label>
+              <textarea id="p_desc" placeholder="Describe the item, its condition, and any details students should know…"></textarea>
+            </div>
+            <div class="row" style="gap:16px; flex-wrap:wrap">
+              <div style="flex:1 1 160px">
+                <label>Price (instant buy)</label>
+                <input id="p_price" type="number" min="0" step="0.01" placeholder="0.00"/>
+              </div>
+              <div style="flex:1 1 220px">
+                <label>Visibility</label>
+                <select id="p_visibility">
+                  <option value="public">Public to your campus</option>
+                  <option value="friends">Only visible to people you share the link with</option>
+                </select>
+              </div>
+            </div>
+            <div class="row" style="gap:10px; margin-top:6px">
+              <button class="btn neon" onclick="submitListing()">Publish listing</button>
+              <div class="muted" style="font-size:11px;">
+                By publishing, you agree that buyers can instantly secure your item at the listed price.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MESSAGES -->
+      <section id="messages" class="view">
+        <div class="row spread reveal" style="margin-bottom:10px">
+          <div>
+            <div class="section-eyebrow">Inbox</div>
+            <h3 style="margin:2px 0 0 0">Messages</h3>
+          </div>
+          <div class="muted">Newest first</div>
+        </div>
+        <div id="msgList" class="list reveal"></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="profile" class="view">
+        <div class="card reveal">
+          <h3 style="margin:0 0 12px 0">Your profile</h3>
+          <div class="row" style="gap:16px; align-items:flex-start; flex-wrap:wrap">
+            <div class="row" style="gap:12px">
+              <div class="avatar" id="avatar">U</div>
+              <div>
+                <label>Name</label>
+                <input id="pf_name" type="text" placeholder="Your name"/>
+                <div class="muted" style="margin-top:4px;font-size:12px;">
+                  Member since <span id="pf_since">–</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="gap:12px; margin-top:12px; flex-wrap:wrap">
+            <div style="flex:1 1 200px">
+              <label>Location</label>
+              <input id="pf_location" type="text" placeholder="City / campus"/>
+            </div>
+            <div style="flex:1 1 200px">
+              <label>University</label>
+              <input id="pf_university" type="text" placeholder="University name"/>
+            </div>
+          </div>
+          <div class="row" style="gap:10px; margin-top:12px">
+            <button class="btn purple" onclick="saveProfile()">Save profile</button>
+          </div>
+        </div>
+        
+        <div class="grid reveal" style="margin-top:16px">
+          <div class="card">
+            <div class="row spread">
+              <div class="muted">Your listings</div>
+              <div id="stat_mylistings">0</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row spread">
+              <div class="muted">Total favourites</div>
+              <div id="stat_favs">0</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row spread">
+              <div class="muted">Total purchases (coming soon)</div>
+              <div id="stat_purchases">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY LISTINGS SECTION -->
+        <div class="card reveal" style="margin-top:16px;">
+          <div class="row spread">
+            <div>
+              <div class="section-eyebrow">Manage</div>
+              <h3 style="margin:2px 0 0 0">My listings</h3>
+            </div>
+            <div class="muted">Edit or delete your posts</div>
+          </div>
+          <div id="myListingsGrid" class="grid" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <nav>
+        <div class="nav-btn active" data-view="home" onclick="switchView(this)">
+          <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z"/></svg>
+          Home
+        </div>
+        <div class="nav-btn" data-view="search" onclick="switchView(this)">
+          <svg viewBox="0 0 24 24"><path d="M10 18a8 8 0 1 1 5.29-14.06L22 10.65l-1.41 1.41-3.7-3.7A8 8 0 0 1 10 18z"/></svg>
+          Search
+        </div>
+        <div class="nav-btn" data-view="favourites" onclick="switchView(this)">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A4.5 4.5 0 0 1 6.5 4c1.74 0 3.41.81 4.5 2.09A6 6 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>
+          Favourites
+        </div>
+        <div class="nav-btn" data-view="messages" onclick="switchView(this)">
+          <svg viewBox="0 0 24 24"><path d="M21 6h-18v12h4v4l6-4h8z"/></svg>
+          Messages
+        </div>
+        <div class="nav-btn" data-view="profile" onclick="switchView(this)">
+          <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 2.24-8 5v3h16v-3c0-2.76-3.58-5-8-5z"/></svg>
+          Profile
+        </div>
+      </nav>
+    </main>
+  </div>
+
+  <!-- Listing modal -->
+  <div id="listingModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread" style="position:relative;z-index:1;">
+        <div>
+          <div class="section-eyebrow">Listing</div>
+          <h3 id="lm_title" style="margin:2px 0 0 0"></h3>
+        </div>
+        <button class="btn icon-only" onclick="closeModal('listingModal')">✕</button>
+      </div>
+      <div id="lm_desc" class="muted" style="margin:8px 0 14px 0"></div>
+      <div id="lm_price" style="font-size:18px;font-weight:800;margin-bottom:4px;"></div>
+      <div id="lm_meta" class="muted" style="margin-top:2px;font-size:12px;"></div>
+
+      <div class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
+        <button class="btn neon" id="lm_buy" onclick="buyNow()">Buy now</button>
+        <button class="btn purple" onclick="startChat()">Message seller</button>
+        <span class="pill-warning" id="lm_guestHint" style="display:none;">
+          Log in to message or buy.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Listing Modal -->
+  <div id="editListingModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread" style="position:relative;z-index:1;margin-bottom:8px;">
+        <div>
+          <div class="section-eyebrow">Edit</div>
+          <h3 style="margin:2px 0 0 0">Update your listing</h3>
+        </div>
+        <button class="btn icon-only" onclick="closeModal('editListingModal')">✕</button>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr;position:relative;z-index:1;">
+        <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap">
+          <div style="flex:1 1 320px">
+            <label>Title</label>
+            <input id="e_title" type="text" placeholder="Title"/>
+          </div>
+          <div style="flex:1 1 220px">
+            <label>Category</label>
+            <input id="e_category" type="text" placeholder="Category"/>
+          </div>
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea id="e_desc" placeholder="Description"></textarea>
+        </div>
+        <div class="row" style="gap:16px; flex-wrap:wrap">
+          <div style="flex:1 1 160px">
+            <label>Price</label>
+            <input id="e_price" type="number" min="0" step="0.01" placeholder="0.00"/>
+          </div>
+          <div style="flex:1 1 220px">
+            <label>Visibility</label>
+            <select id="e_visibility">
+              <option value="public">Public to your campus</option>
+              <option value="friends">Only visible to people you share the link with</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="gap:10px; margin-top:6px">
+          <button class="btn neon" onclick="submitEditListing()">Save changes</button>
+          <button class="btn ghost" onclick="closeModal('editListingModal')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat modal -->
+  <div id="chatModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet">
+      <div class="row spread" style="position:relative;z-index:1;">
+        <h3 id="chatTitle" style="margin:0"></h3>
+        <button class="btn icon-only" onclick="closeModal('chatModal')">✕</button>
+      </div>
+      <div id="chatThread" style="display:flex;flex-direction:column;gap:10px;margin:12px 0;max-height:45vh;overflow:auto"></div>
+      <div class="row" style="gap:8px;position:relative;z-index:1;">
+        <input id="chatInput" type="text" placeholder="Write a message…"/>
+        <button class="btn purple" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth modal -->
+  <div id="authModal" class="modal" onclick="backdropClose(event)">
+    <div class="sheet" style="max-width:480px;">
+      <div class="row spread" style="position:relative;z-index:1;margin-bottom:8px;">
+        <div>
+          <div class="section-eyebrow" id="authEyebrow">Welcome</div>
+          <h3 id="authTitle" style="margin:2px 0 0 0">Log in</h3>
+        </div>
+        <button class="btn icon-only" onclick="closeModal('authModal')">✕</button>
+      </div>
+
+      <div class="auth-tabs">
+        <div id="tabLogin" class="auth-tab active" onclick="switchAuthMode('login')">Log in</div>
+        <div id="tabRegister" class="auth-tab" onclick="switchAuthMode('register')">Register</div>
+      </div>
+
+      <div id="authFormLogin">
+        <div style="margin-bottom:8px;">
+          <label>Email</label>
+          <input id="login_email" type="email" placeholder="you@university.edu"/>
+        </div>
+        <div style="margin-bottom:6px;">
+          <label>Password</label>
+          <input id="login_password" type="password" placeholder="••••••••"/>
+        </div>
+        <div id="loginError" class="error-text" style="display:none;"></div>
+        <button class="btn neon" style="margin-top:10px;width:100%;" onclick="submitLogin()">Log in</button>
+      </div>
+
+      <div id="authFormRegister" style="display:none;">
+        <div style="margin-bottom:8px;">
+          <label>Name</label>
+          <input id="reg_name" type="text" placeholder="Your name"/>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label>Email</label>
+          <input id="reg_email" type="email" placeholder="you@university.edu"/>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label>Password</label>
+          <input id="reg_password" type="password" placeholder="Create a password"/>
+        </div>
+        <div style="margin-bottom:6px;">
+          <label>University</label>
+          <input id="reg_university" type="text" placeholder="University name"/>
+        </div>
+        <div id="registerError" class="error-text" style="display:none;"></div>
+        <button class="btn neon" style="margin-top:10px;width:100%;" onclick="submitRegister()">Create account</button>
+      </div>
+
+      <div class="muted" style="font-size:11px;margin-top:10px;">
+        Once logged in you can post listings, favourite items, start chats with sellers,
+        and buy instantly at the listed price.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    const CHAT_BASE = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    
+    const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
+    const API_AUTH_LOGIN = `${AUTH_BASE}/auth/login`;
+    const API_AUTH_ME = `${AUTH_BASE}/auth/me`;
+    
+    const API_LISTINGS = `${LISTINGS_BASE}/listings`;
+    const API_MY_LISTINGS = `${LISTINGS_BASE}/listings/my`;
+    const API_LISTING = id => `${LISTINGS_BASE}/listings/${id}`;
+    const API_BUY = id => `${LISTINGS_BASE}/listings/${id}/buy`;
+    const API_FAVOURITES = `${LISTINGS_BASE}/favourites`;
+    const API_FAVOURITE = id => `${LISTINGS_BASE}/favourites/${id}`;
+    
+    const API_CHAT_ROOMS = `${CHAT_BASE}/private/rooms`;
+    const API_CHAT_MESSAGES = `${CHAT_BASE}/private/messages`;
+
+    const state = {
+      user: null,
+      token: null,
+      listings: [],
+      myListings: [],
+      favourites: [],
+      messages: [],
+      selected: null,
+      editingListing: null,
+      openChatId: null,
+      profile: { since: new Date().toISOString(), name:'', location:'', university:'' },
+    };
+
+    const el  = sel => document.querySelector(sel);
+    const els = sel => Array.from(document.querySelectorAll(sel));
+
+    /* ==================== AUTH ==================== */
+
+    function isAuthed(){ return !!state.user && !!state.token; }
+
+    function persistAuth(){
+      localStorage.setItem('cx_auth', JSON.stringify({user:state.user, token:state.token}));
+    }
+
+    function restoreAuth(){
+      try{
+        const raw = localStorage.getItem('cx_auth');
+        if(!raw) return;
+        const parsed = JSON.parse(raw);
+        state.user = parsed.user || null;
+        state.token = parsed.token || null;
+      }catch(e){}
+    }
+
+    async function fetchMe(){
+      if(!state.token) return;
+      try{
+        const res = await fetch(API_AUTH_ME,{
+          headers:{'Authorization':'Bearer ' + state.token}
+        });
+        
+        if(!res.ok) throw new Error('Failed to fetch user');
+        
+        const data = await res.json();
+        state.user = data;
+      }catch(e){
+        console.error('fetchMe error:', e);
+        state.user = null;
+        state.token = null;
+        localStorage.removeItem('cx_auth');
+      }
+    }
+
+    function updateAuthUI(){
+      const container = el('#headerAuth');
+      if(!container) return;
+      container.innerHTML = '';
+      
+      // Update hero auth box visibility
+      const heroAuthBox = el('#heroAuthBox');
+      
+      if(!isAuthed()){
+        const loginBtn = document.createElement('button');
+        loginBtn.className = 'btn ghost small';
+        loginBtn.textContent = 'Log in';
+        loginBtn.onclick = () => openAuthModal('login');
+
+        const regBtn = document.createElement('button');
+        regBtn.className = 'btn neon small';
+        regBtn.textContent = 'Register';
+        regBtn.onclick = () => openAuthModal('register');
+
+        container.appendChild(loginBtn);
+        container.appendChild(regBtn);
+        
+        // Show auth box in hero when logged out
+        if(heroAuthBox) heroAuthBox.style.display = 'block';
+      }else{
+        const chip = document.createElement('div');
+        chip.style.display='flex';
+        chip.style.alignItems='center';
+        chip.style.gap='8px';
+
+        const avatar = document.createElement('div');
+        avatar.className='avatar';
+        avatar.style.width='32px';
+        avatar.style.height='32px';
+        avatar.textContent = (state.user.name || state.user.email || 'U').slice(0,1).toUpperCase();
+
+        const info = document.createElement('div');
+        info.style.display='flex';
+        info.style.flexDirection='column';
+        info.style.fontSize='11px';
+        info.innerHTML = `<strong>${escapeHtml(state.user.name || 'Student')}</strong><span class="muted">${escapeHtml(state.user.email || '')}</span>`;
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className='btn ghost small';
+        logoutBtn.textContent='Log out';
+        logoutBtn.onclick = logout;
+
+        chip.appendChild(avatar);
+        chip.appendChild(info);
+        container.appendChild(chip);
+        container.appendChild(logoutBtn);
+        
+        // Hide auth box when logged in
+        if(heroAuthBox) heroAuthBox.style.display = 'none';
+      }
+    }
+
+    function logout(){
+      state.user=null;
+      state.token=null;
+      state.favourites=[];
+      state.myListings=[];
+      localStorage.removeItem('cx_auth');
+      updateAuthUI();
+      go('home');
+      alert('You have been logged out.');
+    }
+
+    function openAuthModal(mode){
+      switchAuthMode(mode || 'login');
+      openModal('authModal');
+    }
+
+    function switchAuthMode(mode){
+      const loginTab = el('#tabLogin');
+      const regTab   = el('#tabRegister');
+      const loginBox = el('#authFormLogin');
+      const regBox   = el('#authFormRegister');
+      const title    = el('#authTitle');
+      const eyebrow  = el('#authEyebrow');
+
+      if(mode === 'register'){
+        loginTab.classList.remove('active');
+        regTab.classList.add('active');
+        loginBox.style.display='none';
+        regBox.style.display='block';
+        title.textContent='Create your account';
+        eyebrow.textContent='Join connectr+';
+      }else{
+        loginTab.classList.add('active');
+        regTab.classList.remove('active');
+        loginBox.style.display='block';
+        regBox.style.display='none';
+        title.textContent='Log in';
+        eyebrow.textContent='Welcome back';
+      }
+    }
+
+    async function submitLogin(){
+      const email = el('#login_email').value.trim();
+      const pwd   = el('#login_password').value.trim();
+      const errEl = el('#loginError');
+
+      errEl.style.display = 'none';
+      errEl.textContent   = '';
+
+      if(!email || !pwd){
+        errEl.textContent='Please enter email and password.';
+        errEl.style.display='block';
+        return;
+      }
+
+      try{
+        const res = await fetch(API_AUTH_LOGIN,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({email,password:pwd})
+        });
+
+        if(!res.ok) throw new Error('Login failed');
+
+        const data = await res.json();
+        state.token = data.access_token || data.token;
+
+        if(!state.token) throw new Error('Missing token');
+
+        state.user = { email };
+
+        await fetchMe();
+        await syncFavourites();
+        await loadMyListings();
+
+        persistAuth();
+        updateAuthUI();
+        closeModal('authModal');
+        await loadListings();
+        alert('Logged in successfully.');
+      }catch(e){
+        console.error('Login error:', e);
+        errEl.textContent = 'Login failed: ' + e.message;
+        errEl.style.display='block';
+      }
+    }
+
+    async function submitRegister(){
+      const name = el('#reg_name').value.trim();
+      const email = el('#reg_email').value.trim();
+      const pwd   = el('#reg_password').value.trim();
+      const uni   = el('#reg_university').value.trim();
+      const errEl = el('#registerError');
+      errEl.style.display='none';
+      errEl.textContent='';
+
+      if(!name || !email || !pwd){
+        errEl.textContent='Please fill in name, email and password.';
+        errEl.style.display='block';
+        return;
+      }
+
+      try{
+        const res = await fetch(API_AUTH_REGISTER,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({name,email,password:pwd,university:uni})
+        });
+
+        if(!res.ok){
+          const data = await res.json();
+          throw new Error(data.detail || 'Registration failed');
+        }
+
+        alert('Account created successfully. Please log in with your new email and password.');
+        switchAuthMode('login');
+      }catch(e){
+        console.error(e);
+        errEl.textContent = e.message;
+        errEl.style.display='block';
+      }
+    }
+
+    function onRequireAuth(action){
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      action && action();
+    }
+
+    /* ==================== NAV ==================== */
+
+    function go(view){
+      const btn = els(`.nav-btn[data-view="${view}"]`)[0];
+      if(btn) switchView(btn);
+      else{
+        els('.view').forEach(v=>v.classList.remove('active'));
+        const target = el('#'+view);
+        if(target) target.classList.add('active');
+      }
+      observeAll();
+    }
+
+    function switchView(btn){
+      els('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.getAttribute('data-view');
+      els('.view').forEach(v=>v.classList.remove('active'));
+      el('#'+id).classList.add('active');
+
+      if(id==='favourites') renderFavourites();
+      if(id==='messages') renderMessages();
+      if(id==='profile') { renderProfileStats(); renderMyListings(); }
+      if(id==='home') renderHome();
+      if(id==='search') runSearch();
+      observeAll();
+    }
+
+    /* ==================== LISTINGS ==================== */
+
+    async function loadListings(){
+      try{
+        const res = await fetch(API_LISTINGS);
+        if(!res.ok) throw new Error('Failed to load listings');
+        const data = await res.json();
+        state.listings = Array.isArray(data) ? data : (data.items || []);
+      }catch(e){
+        console.warn('Failed to load listings:', e);
+        state.listings = [];
+      }
+      renderHome();
+      runSearch();
+      renderFavourites();
+      renderProfileStats();
+    }
+
+    async function loadMyListings(){
+      if(!isAuthed()) return;
+      try{
+        const res = await fetch(API_MY_LISTINGS, {
+          headers: {'Authorization': 'Bearer ' + state.token}
+        });
+        if(!res.ok) throw new Error('Failed to load my listings');
+        state.myListings = await res.json();
+      }catch(e){
+        console.warn('Failed to load my listings:', e);
+        state.myListings = [];
+      }
+      renderMyListings();
+      renderProfileStats();
+    }
+
+    function renderHome(){
+      const trg = el('#trendingGrid');
+      const items = state.listings.slice(0,8);
+      trg.innerHTML = items.map(renderListingCard).join('') ||
+        `<div class="muted">No listings yet. Log in and create the first one!</div>`;
+      el('#metricListings').textContent = state.listings.length;
+    }
+
+    function runSearch(){
+      const q = (el('#searchInput')?.value||'').toLowerCase().trim();
+      const res = !q
+        ? state.listings
+        : state.listings.filter(x=>
+            (x.title||'').toLowerCase().includes(q) ||
+            (x.category||'').toLowerCase().includes(q) ||
+            (x.description||'').toLowerCase().includes(q)
+          );
+      el('#searchResults').innerHTML = res.map(renderListingCard).join('') ||
+        '<div class="muted">No results. Try another keyword.</div>';
+    }
+
+    function clearSearch(){
+      if(!el('#searchInput')) return;
+      el('#searchInput').value='';
+      runSearch();
+    }
+
+    // Renders a single listing card.
+    // - If current user is NOT the seller => View details + Instant buy (if not sold)
+    // - If current user IS the seller     => Edit + Delete
+    function renderListingCard(l, isOwn = false){
+      const fav = isFav(l.id);
+      const isSold = l.status === 'sold';
+      const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
+
+      const priceStr = isSold
+        ? 'Sold'
+        : (l.price > 0 ? `€${Number(l.price).toFixed(2)}` : 'Free / swap');
+
+      const soldBadge = isSold
+        ? `<span class="badge" style="border-color:rgba(255,77,106,.7);color:var(--danger);background:rgba(56,14,24,.7);">Sold</span>`
+        : `<span class="badge">Instant buy</span>`;
+
+      // Build actions according to ownership
+      let actionsHtml = '';
+
+      if (!isOwn && !isMyListing) {
+        // Not the seller: show View details + Instant buy (if active)
+        actionsHtml += `<button class="btn neon small" onclick='openListing(${JSON.stringify(l.id)})'>View details</button>`;
+        if (!isSold) {
+          actionsHtml += `<button class="btn purple small" onclick='instantBuy(${JSON.stringify(l.id)})'>Instant buy</button>`;
+        }
+      } else if (isOwn || isMyListing) {
+        // Seller: show Edit/Delete
+        actionsHtml += `
+          <button class="btn purple small" onclick='editListing(${JSON.stringify(l.id)})'>Edit</button>
+          <button class="btn danger small" onclick='deleteListing(${JSON.stringify(l.id)})'>Delete</button>
+        `;
+      }
+
+      return `<div class="card reveal">
+        <div class="row spread" style="position:relative;z-index:1;">
+          <div style="font-weight:800;font-size:14px;max-width:78%;">
+            ${escapeHtml(l.title)}
+          </div>
+          ${!isOwn && !isMyListing ? `<button
+            class="seg-btn"
+            style="padding:4px 8px;font-size:12px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':''}"
+            onclick="toggleFav('${l.id}')"
+            ${!isAuthed()?'title="Log in to use favourites"':''}
+          >
+            ${fav?'★':'☆'}
+          </button>` : ''}
+        </div>
+        <div class="row spread" style="position:relative;z-index:1;">
+          <div class="muted" style="font-size:12px;">${escapeHtml(l.category || 'Misc')}</div>
+          ${soldBadge}
+        </div>
+        <div class="row spread" style="margin-top:4px;position:relative;z-index:1;">
+          <div style="font-size:18px; font-weight:800">${priceStr}</div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:6px;position:relative;z-index:1;flex-wrap:wrap;">
+          ${actionsHtml}
+        </div>
+      </div>`;
+    }
+
+    function renderMyListings(){
+      const grid = el('#myListingsGrid');
+      if(!grid) return;
+      
+      grid.innerHTML = state.myListings.map(l => renderListingCard(l, true)).join('') ||
+        '<div class="muted">You haven\'t posted any listings yet. Click "New listing" to get started!</div>';
+    }
+
+    function openListing(id){
+      const l=state.listings.find(x=>x.id===id) || state.myListings.find(x=>x.id===id);
+      if(!l) return;
+      state.selected=l;
+      
+      const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
+      const isSold = l.status === 'sold';
+      
+      el('#lm_title').textContent=l.title;
+      el('#lm_desc').textContent=l.description||'—';
+      
+      const priceStr = isSold ? 'Already sold' :
+        (l.price > 0 ? `€${Number(l.price).toFixed(2)}` : 'Free / swap');
+      el('#lm_price').textContent = priceStr;
+      
+      el('#lm_meta').textContent = [
+        `Seller: ${l.seller || 'Seller'}`,
+        l.category ? `Category: ${l.category}` : null,
+        l.createdAt ? `Posted ${timeAgo(new Date(l.createdAt).getTime())}` : null,
+      ].filter(Boolean).join(' • ');
+
+      const buyBtn = el('#lm_buy');
+      const guestHint = el('#lm_guestHint');
+      
+      if(isMyListing){
+        // It's your own listing - hide buy button, show message
+        buyBtn.style.display = 'none';
+        guestHint.textContent = 'This is your listing. You cannot buy your own item.';
+        guestHint.style.display='inline';
+      } else if(isSold){
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Sold';
+        buyBtn.style.display = 'inline-block';
+        guestHint.style.display='none';
+      } else if(!isAuthed()){
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Buy now';
+        buyBtn.style.display = 'inline-block';
+        guestHint.textContent = 'Log in to message or buy.';
+        guestHint.style.display='inline';
+      } else {
+        buyBtn.disabled = false;
+        buyBtn.textContent = 'Buy now';
+        buyBtn.style.display = 'inline-block';
+        guestHint.style.display='none';
+      }
+
+      openModal('listingModal');
+    }
+
+    // Instant buy from card: set selected listing and reuse buyNow()
+    function instantBuy(id){
+      const l = state.listings.find(x => x.id === id) || state.myListings.find(x => x.id === id);
+      if(!l) return;
+      state.selected = l;
+      buyNow();
+    }
+
+    async function buyNow(){
+      if(!state.selected) return;
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      
+      const listing = state.selected;
+      
+      // Check if it's your own listing
+      if(listing.seller === state.user.email){
+        alert('You cannot buy your own listing.');
+        return;
+      }
+      
+      if(listing.status === 'sold'){
+        alert('This item is already sold.');
+        return;
+      }
+
+      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price||0).toFixed(2)}?\n\nThe seller will be notified immediately.`)){
+        return;
+      }
+      try{
+        const res = await fetch(API_BUY(listing.id),{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+state.token
+          },
+          body:JSON.stringify({})
+        });
+        if(!res.ok) throw new Error('Purchase failed');
+        
+        await loadListings();
+        await loadMyListings();
+        closeModal('listingModal');
+        alert(`Purchase completed!\n\n✓ Item "${listing.title}" is now yours\n✓ Seller has been notified\n\nCheck your messages to coordinate pickup/delivery.`);
+      }catch(e){
+        console.error(e);
+        alert('Could not complete purchase. Please try again.');
+      }
+    }
+
+    async function submitListing(){
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      const title = el('#p_title').value.trim();
+      if(title.length<3){
+        alert('Please add a longer title.');
+        return;
+      }
+      
+      const listing = {
+        title,
+        category: el('#p_category').value.trim(),
+        description: el('#p_desc').value.trim(),
+        price: Number(el('#p_price').value||0),
+        visibility: el('#p_visibility').value,
+      };
+      
+      try{
+        const res = await fetch(API_LISTINGS,{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+state.token
+          },
+          body:JSON.stringify(listing)
+        });
+        
+        if(!res.ok) throw new Error('Failed to create listing');
+        
+        await loadListings();
+        await loadMyListings();
+        
+        el('#p_title').value = '';
+        el('#p_category').value = '';
+        el('#p_desc').value = '';
+        el('#p_price').value = '';
+        
+        alert('Listing published!');
+        go('search');
+      }catch(e){
+        console.error(e);
+        alert('Could not publish listing. Please try again.');
+      }
+    }
+
+    function editListing(id){
+      let l = state.myListings.find(x => x.id === id);
+      if(!l){
+        l = state.listings.find(x => x.id === id);
+      }
+      if(!l) return;
+      
+      state.editingListing = l;
+      
+      el('#e_title').value = l.title || '';
+      el('#e_category').value = l.category || '';
+      el('#e_desc').value = l.description || '';
+      el('#e_price').value = l.price || 0;
+      el('#e_visibility').value = l.visibility || 'public';
+      
+      openModal('editListingModal');
+    }
+
+    async function submitEditListing(){
+      if(!state.editingListing) return;
+      
+      const updates = {
+        title: el('#e_title').value.trim(),
+        category: el('#e_category').value.trim(),
+        description: el('#e_desc').value.trim(),
+        price: Number(el('#e_price').value||0),
+        visibility: el('#e_visibility').value,
+      };
+      
+      try{
+        const res = await fetch(API_LISTING(state.editingListing.id),{
+          method:'PUT',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':'Bearer '+state.token
+          },
+          body:JSON.stringify(updates)
+        });
+        
+        if(!res.ok) throw new Error('Failed to update listing');
+        
+        await loadListings();
+        await loadMyListings();
+        closeModal('editListingModal');
+        alert('Listing updated!');
+      }catch(e){
+        console.error(e);
+        alert('Could not update listing. Please try again.');
+      }
+    }
+
+    async function deleteListing(id){
+      if(!confirm('Are you sure you want to delete this listing?')) return;
+      
+      try{
+        const res = await fetch(API_LISTING(id),{
+          method:'DELETE',
+          headers:{'Authorization':'Bearer '+state.token}
+        });
+        
+        if(!res.ok) throw new Error('Failed to delete listing');
+        
+        await loadListings();
+        await loadMyListings();
+        alert('Listing deleted.');
+      }catch(e){
+        console.error(e);
+        alert('Could not delete listing. Please try again.');
+      }
+    }
+
+    /* ==================== FAVOURITES ==================== */
+
+    async function syncFavourites(){
+      if(!isAuthed()) {
+        state.favourites = [];
+        return;
+      }
+      
+      try{
+        const res = await fetch(API_FAVOURITES, {
+          headers: {'Authorization': 'Bearer ' + state.token}
+        });
+        if(!res.ok) throw new Error('Failed to sync favourites');
+        state.favourites = await res.json();
+      }catch(e){
+        console.warn('Failed to sync favourites:', e);
+        state.favourites = [];
+      }
+      renderFavourites();
+      renderProfileStats();
+    }
+
+    function isFav(id){ return state.favourites.includes(id); }
+
+    async function toggleFav(id){
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      
+      const wasFav = isFav(id);
+      
+      try{
+        if(wasFav){
+          const res = await fetch(API_FAVOURITE(id), {
+            method: 'DELETE',
+            headers: {'Authorization': 'Bearer ' + state.token}
+          });
+          if(!res.ok) throw new Error('Failed to remove favourite');
+          state.favourites = state.favourites.filter(fid => fid !== id);
+        }else{
+          const res = await fetch(API_FAVOURITE(id), {
+            method: 'POST',
+            headers: {'Authorization': 'Bearer ' + state.token}
+          });
+          if(!res.ok) throw new Error('Failed to add favourite');
+          state.favourites.push(id);
+        }
+        
+        renderHome();
+        runSearch();
+        renderFavourites();
+        renderProfileStats();
+      }catch(e){
+        console.error('Toggle favourite error:', e);
+        alert('Could not update favourites. Please try again.');
+      }
+    }
+
+    async function clearFavourites(){
+      if(!confirm('Remove all favourites?')) return;
+      
+      try{
+        for(const id of state.favourites){
+          await fetch(API_FAVOURITE(id), {
+            method: 'DELETE',
+            headers: {'Authorization': 'Bearer ' + state.token}
+          });
+        }
+        state.favourites = [];
+        renderFavourites();
+        renderProfileStats();
+      }catch(e){
+        console.error('Clear favourites error:', e);
+        alert('Could not clear favourites.');
+      }
+    }
+
+    function renderFavourites(){
+      const favs = state.listings.filter(l=> state.favourites.includes(l.id));
+      el('#favGrid').innerHTML = favs.map(renderListingCard).join('') ||
+        '<div class="muted">Nothing here yet. Tap the ★ on listings to save them.</div>';
+    }
+
+    /* ==================== MESSAGES & CHAT ==================== */
+
+    function renderMessages(){
+      const list = el('#msgList');
+      const rows = state.messages
+        .slice()
+        .sort((a,b)=>b.ts-a.ts)
+        .map(m=>`
+        <div class="list-item clickable" onclick="openChat('${m.id}')">
+          <div class="row" style="gap:10px">
+            <div class="avatar">${(m.peer||'U').slice(0,1).toUpperCase()}</div>
+            <div>
+              <div><strong>${escapeHtml(m.peer)}</strong></div>
+              <div class="muted" style="font-size:12px">${escapeHtml(m.last)}</div>
+            </div>
+          </div>
+          <div class="muted" style="font-size:11px">${timeAgo(m.ts)}</div>
+        </div>`).join('');
+      list.innerHTML = rows || '<div class="muted">No messages yet. Open a listing and start a chat with a seller.</div>';
+    }
+
+    async function ensureRoomForSelected(){
+      if(!state.selected) return null;
+      const existing = state.messages.find(m=>m.listingId===state.selected.id);
+      if(existing) return existing.id;
+
+      const id = crypto.randomUUID();
+      const room = {
+        id,
+        listingId: state.selected.id,
+        peer: state.selected.seller || 'Seller',
+        last: `Inquiry about ${state.selected.title}`,
+        ts: Date.now(),
+        thread:[{from:'me',text:`Hi! Is "${state.selected.title}" still available?`, ts:Date.now()}]
+      };
+      state.messages.unshift(room);
+      return id;
+    }
+
+    async function startChat(){
+      if(!state.selected) return;
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      const id = await ensureRoomForSelected();
+      renderMessages();
+      closeModal('listingModal');
+      openChat(id);
+    }
+
+    function openChat(id){
+      const m=state.messages.find(x=>x.id===id);
+      if(!m) return;
+      state.openChatId=id;
+      el('#chatTitle').textContent=m.peer;
+      const box=el('#chatThread');
+      box.innerHTML=m.thread.map(t=>`
+        <div style="display:flex; ${t.from==='me'?'justify-content:flex-end':''}">
+          <div class="bubble ${t.from==='me'?'me':'them'}">
+            ${escapeHtml(t.text)}
+          </div>
+        </div>`).join('');
+      openModal('chatModal');
+      box.scrollTop=box.scrollHeight;
+    }
+
+    function sendChat(){
+      const msg=el('#chatInput').value.trim();
+      if(!msg) return;
+      const m=state.messages.find(x=>x.id===state.openChatId);
+      if(!m) return;
+      m.thread.push({from:'me', text:msg, ts:Date.now()});
+      m.last=msg;
+      m.ts=Date.now();
+      el('#chatInput').value='';
+      renderMessages();
+      openChat(m.id);
+    }
+
+    /* ==================== PROFILE ==================== */
+
+    function renderProfileStats(){
+      const since = state.user?.createdAt || state.profile.since;
+      el('#pf_since').textContent = since ? new Date(since).toLocaleDateString() : '—';
+      el('#pf_name').value = state.user?.name || state.profile.name || '';
+      el('#pf_location').value = state.profile.location || '';
+      el('#pf_university').value = state.user?.university || state.profile.university || '';
+      el('#stat_mylistings').textContent = state.myListings.length;
+      el('#stat_favs').textContent = state.favourites.length;
+      el('#stat_purchases').textContent = 0;
+      el('#avatar').textContent = (state.user?.name || 'U').slice(0,1).toUpperCase();
+    }
+
+    function saveProfile(){
+      state.profile.name = el('#pf_name').value.trim();
+      state.profile.location = el('#pf_location').value.trim();
+      state.profile.university = el('#pf_university').value.trim();
+      localStorage.setItem('cx_profile', JSON.stringify(state.profile));
+      alert('Profile saved locally.');
+    }
+
+    /* ==================== MODAL + HELPERS ==================== */
+
+    function openModal(id){ el('#'+id).style.display='flex'; }
+    function closeModal(id){ el('#'+id).style.display='none'; }
+    function backdropClose(e){
+      if(e.target.classList.contains('modal')) e.target.style.display='none';
+    }
+
+    function timeAgo(ts){
+      if(!ts) return '';
+      const s=Math.floor((Date.now()-ts)/1000);
+      if(s<60) return `${s}s ago`;
+      const m=Math.floor(s/60);
+      if(m<60) return `${m}m ago`;
+      const h=Math.floor(m/60);
+      if(h<24) return `${h}h ago`;
+      const d=Math.floor(h/24);
+      return `${d}d ago`;
+    }
+
+    function escapeHtml(str){
+      return (str||'').replace(/[&<>"']/g, m=>(
+        {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]
+      ));
+    }
+
+    function observeAll(){
+      const io=new IntersectionObserver(es=>es.forEach(e=>{
+        if(e.isIntersecting) e.target.classList.add('in');
+      }),{threshold:.12});
+      els('.reveal').forEach(n=>io.observe(n));
+    }
+
+    /* ==================== INIT ==================== */
+
+    (async function init(){
+      restoreAuth();
+      await fetchMe();
+      updateAuthUI();
+
+      try{
+        const p = JSON.parse(localStorage.getItem('cx_profile')||'null');
+        if(p) state.profile = p;
+      }catch(e){}
+
+      await loadListings();
+      
+      if(isAuthed()){
+        await syncFavourites();
+        await loadMyListings();
+      }
+
+      if(state.messages.length===0){
+        state.messages=[{
+          id:crypto.randomUUID(),
+          peer:'Alex',
+          last:'Tickets still available?',
+          ts:Date.now()-200000,
+          thread:[{from:'them',text:'Hey! Are you interested in the ticket?',ts:Date.now()-300000}]
+        }];
+      }
+      renderMessages();
+      observeAll();
+    })();
+  </script>
+</body>
+</html>
