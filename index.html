@@ -922,9 +922,12 @@
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     const CHAT_BASE     = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     
+    const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
     const API_AUTH_LOGIN    = `${AUTH_BASE}/auth/login`;
     const API_AUTH_ME       = `${AUTH_BASE}/auth/me`;
+    
+    // NEW CODE - ADD THESE LINES:
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     const API_LISTINGS      = `${LISTINGS_BASE}/listings`;
     const API_BUY           = id => `${LISTINGS_BASE}/listings/${id}/buy`;
@@ -1454,42 +1457,42 @@
       });
     }
 
-    async function submitListing(){
-      if(!isAuthed()){
-        openAuthModal('login');
-        return;
-      }
-      const title = el('#p_title').value.trim();
-      if(title.length<3){alert('Please add a longer title.');return}
-      const price = Number(el('#p_price').value||0);
-      const listing = {
-        title,
-        category: el('#p_category').value.trim(),
-        description: el('#p_desc').value.trim(),
-        price,
-        visibility: el('#p_visibility').value,
-      };
-      try{
-        const res = await fetch(API_LISTINGS,{
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json',
-            'Authorization':'Bearer '+state.token
-          },
-          body:JSON.stringify(listing)
-        });
-        if(!res.ok){
-          const t = await res.text();
-          throw new Error(t || 'Could not publish listing');
+        async function submitListing(){
+          if(!isAuthed()){
+            openAuthModal('login');
+            return;
+          }
+          const title = el('#p_title').value.trim();
+          if(title.length<3){alert('Please add a longer title.');return}
+          const price = Number(el('#p_price').value||0);
+          const listing = {
+            title,
+            category: el('#p_category').value.trim(),
+            description: el('#p_desc').value.trim(),
+            price,  // Change from startPrice to price
+            visibility: el('#p_visibility').value,
+          };
+          try{
+            const res = await fetch(API_LISTINGS,{
+              method:'POST',
+              headers:{
+                'Content-Type':'application/json',
+                'Authorization':'Bearer '+state.token
+              },
+              body:JSON.stringify(listing)
+            });
+            if(!res.ok){
+              const t = await res.text();
+              throw new Error(t || 'Could not publish listing');
+            }
+            await loadListings();
+            alert('Listing published!');
+            go('search');
+          }catch(e){
+            console.error(e);
+            alert('We could not publish your listing. Please try again.');
+          }
         }
-        await loadListings();
-        alert('Listing published!');
-        go('search');
-      }catch(e){
-        console.error(e);
-        alert('We could not publish your listing. Please try again.');
-      }
-    }
 
     /* ==================== MESSAGES & CHAT ==================== */
 
