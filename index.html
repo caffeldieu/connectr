@@ -916,26 +916,23 @@
       Replace <LISTINGS_FQDN> and <CHAT_FQDN> with the real values
       from `az containerapp show ...`.
     */
-    const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    
     // BACKEND FQDNs
-    const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    const CHAT_BASE     = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    
     const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
-    const API_AUTH_LOGIN    = `${AUTH_BASE}/auth/login`;
-    const API_AUTH_ME       = `${AUTH_BASE}/auth/me`;
-    
-    // NEW CODE - ADD THESE LINES:
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    const API_LISTINGS      = `${LISTINGS_BASE}/listings`;
-    const API_BUY           = id => `${LISTINGS_BASE}/listings/${id}/buy`;
+    const CHAT_BASE = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     
-    // Chat service (when you hook it up for real)
-    const API_CHAT_ROOMS    = `${CHAT_BASE}/private/rooms`;
+    // Auth endpoints
+    const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
+    const API_AUTH_LOGIN = `${AUTH_BASE}/auth/login`;
+    const API_AUTH_ME = `${AUTH_BASE}/auth/me`;
+    
+    // Listings endpoints
+    const API_LISTINGS = `${LISTINGS_BASE}/listings`;
+    const API_BUY = id => `${LISTINGS_BASE}/listings/${id}/buy`;
+    
+    // Chat endpoints
+    const API_CHAT_ROOMS = `${CHAT_BASE}/private/rooms`;
     const API_CHAT_MESSAGES = `${CHAT_BASE}/private/messages`;
-
 
     const state = {
       user: null,
