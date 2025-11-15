@@ -204,6 +204,14 @@
       grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
       gap:16px;
     }
+    .grid.story-cards{
+      grid-template-columns:repeat(2,1fr);
+    }
+    @media(max-width:768px){
+      .grid.story-cards{
+        grid-template-columns:1fr;
+      }
+    }
     .card{
       background:radial-gradient(circle at top left,#141521,#0b0b0f);
       border:1px solid var(--line);
@@ -288,6 +296,21 @@
       grid-template-columns:minmax(0,2.1fr) minmax(0,1.4fr);
       gap:22px;
       align-items:center;
+    }
+    .hero.logged-in{
+      grid-template-columns:1fr;
+      text-align:center;
+      max-width:900px;
+      margin:0 auto;
+    }
+    .hero.logged-in .headline{
+      text-align:center;
+    }
+    .hero.logged-in .sub{
+      margin:0 auto;
+    }
+    .hero.logged-in .hero-metrics{
+      justify-content:center;
     }
     .headline{
       font-size:46px;
@@ -524,7 +547,8 @@
     <main>
       <!-- HOME -->
       <section id="home" class="view active">
-        <div class="hero reveal">
+        <!-- Hero entry section -->
+        <div class="hero reveal" id="heroSection">
           <div>
             <div class="pill">
               <span style="width:7px;height:7px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px rgba(193,255,114,.8);"></span>
@@ -556,7 +580,7 @@
             </div>
           </div>
 
-          <div class="hero-right">
+          <div class="hero-right" id="heroAuthBox">
             <div class="tagline-glow">A premium experience for students</div>
             <div class="hero-right-title">Your next favourite item is probably already here.</div>
             <div class="hero-list">
@@ -589,7 +613,8 @@
           </div>
         </div>
 
-        <div class="grid reveal" style="margin-top:2px;">
+        <!-- Our story / Our mission -->
+        <div class="grid story-cards reveal" style="margin-top:2px;">
           <div class="card">
             <div class="section-eyebrow">Our story</div>
             <div class="section-title">Built by students who were tired of messy group chats.</div>
@@ -622,6 +647,7 @@
           </div>
         </div>
 
+        <!-- Trending listings -->
         <div class="card reveal" style="margin-top:18px;">
           <div class="row spread">
             <div>
