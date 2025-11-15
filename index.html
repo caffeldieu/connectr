@@ -1397,6 +1397,11 @@
     function renderHome(){
       const trg = el('#trendingGrid');
       const items = state.listings.slice(0,8);
+      
+      // Debug: Log listings and current user
+      console.log('Rendering home - Current user:', state.user?.email);
+      console.log('Listings:', items.map(l => ({ id: l.id, title: l.title, seller: l.seller })));
+      
       trg.innerHTML = items.map(renderListingCard).join('') ||
         `<div class="muted">No listings yet. Log in and create the first one!</div>`;
       el('#metricListings').textContent = state.listings.length;
@@ -1424,7 +1429,8 @@
     function renderListingCard(l, isOwn = false){
       const fav=isFav(l.id);
       const isSold = l.status === 'sold';
-      const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
+      // Check if this listing belongs to the current user
+      const isMyListing = isAuthed() && state.user && state.user.email && l.seller === state.user.email;
       const priceStr = isSold ? 'Sold' :
         (l.price > 0 ? `€${Number(l.price).toFixed(2)}` : 'Free / swap');
 
@@ -1437,7 +1443,7 @@
           <div style="font-weight:800;font-size:14px;max-width:78%;">
             ${escapeHtml(l.title)}
           </div>
-          ${!isOwn && !isMyListing ? `<button
+          ${!isMyListing ? `<button
             class="seg-btn"
             style="padding:4px 8px;font-size:12px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':''}"
             onclick="toggleFav('${l.id}')"
@@ -1454,8 +1460,8 @@
           <div style="font-size:18px; font-weight:800">${priceStr}</div>
         </div>
         <div class="row" style="gap:8px;margin-top:6px;position:relative;z-index:1;flex-wrap:wrap;">
-          ${!isOwn && !isMyListing ? `<button class="btn neon small" onclick='openListing(${JSON.stringify(l.id)})'>View details</button>` : ''}
-          ${(isOwn || isMyListing) ? `
+          ${!isMyListing ? `<button class="btn neon small" onclick='openListing(${JSON.stringify(l.id)})'>View details</button>` : ''}
+          ${isMyListing ? `
             <button class="btn purple small" onclick='editListing(${JSON.stringify(l.id)})'>Edit</button>
             <button class="btn danger small" onclick='deleteListing(${JSON.stringify(l.id)})'>Delete</button>
           ` : ''}
