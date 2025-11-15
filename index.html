@@ -1385,7 +1385,7 @@
     function renderHome(){
       const trg = el('#trendingGrid');
       const items = state.listings.slice(0,8);
-      trg.innerHTML = items.map(renderListingCard).join('') ||
+      trg.innerHTML = items.map(l => renderListingCard(l)).join('') ||
         `<div class="muted">No listings yet. Log in and create the first one!</div>`;
       el('#metricListings').textContent = state.listings.length;
     }
@@ -1399,8 +1399,9 @@
             (x.category||'').toLowerCase().includes(q) ||
             (x.description||'').toLowerCase().includes(q)
           );
-      el('#searchResults').innerHTML = res.map(renderListingCard).join('') ||
+      el('#searchResults').innerHTML = res.map(l => renderListingCard(l)).join('') ||
         '<div class="muted">No results. Try another keyword.</div>';
+
     }
 
     function clearSearch(){
@@ -1777,7 +1778,7 @@
 
     function renderFavourites(){
       const favs = state.listings.filter(l=> state.favourites.includes(l.id));
-      el('#favGrid').innerHTML = favs.map(renderListingCard).join('') ||
+      el('#favGrid').innerHTML = favs.map(l => renderListingCard(l)).join('') ||
         '<div class="muted">Nothing here yet. Tap the ★ on listings to save them.</div>';
     }
 
