@@ -340,21 +340,13 @@
       max-width:920px;
       margin:0 auto;
     }
-    .hero .headline{
-      text-align:center;
-    }
-    .hero .sub{
-      margin:0 auto;
-    }
-    .hero .hero-metrics{
-      justify-content:center;
-    }
     .headline{
       font-size:52px;
       line-height:1.05;
       margin:18px 0 10px 0;
       font-weight:900;
       letter-spacing:-.8px;
+      text-align:center;
     }
     .headline span.accent{
       color:var(--neon);
@@ -366,6 +358,7 @@
       font-size:15px;
       line-height:1.7;
       font-weight:400;
+      margin:0 auto;
     }
     .hero-metrics{
       display:flex;
@@ -376,6 +369,7 @@
       font-size:13px;
       color:#9ca3af;
       line-height:1.6;
+      justify-content:center;
     }
     .hero-metric span{
       display:block;
@@ -563,13 +557,6 @@
       margin-top:4px;
     }
 
-    .tagline-glow{
-      font-size:11px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.15em;
-    }
-
     .reveal{
       opacity:0;
       transform:translateY(24px);
@@ -632,17 +619,15 @@
         <div class="hero reveal" id="heroSection">
           <div>
             <div class="pill">
-              <span style="width:7px;height:7px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px rgba(193,255,114,.8);"></span>
-              connectr+ marketplace · beta
+              <span style="width:9px;height:9px;border-radius:50%;background:var(--neon);box-shadow:0 0 16px rgba(193,255,114,.9), 0 0 4px rgba(193,255,114,1);"></span>
+              connectr+ marketplace
             </div>
             <div class="headline">
               Connect your <span class="accent">campus</span>  
               in one trusted marketplace.
             </div>
             <p class="sub">
-              Browse textbooks, tickets, tech, and more in a curated student-only space.
-              Look around freely — then log in to favourite, message, and buy items in a
-              single, secure flow.
+              Built by students exclusive for students. Browse a selection of books, tickets, and tech - then log in to favourite, message, and buy in one effortless experience.
             </p>
 
             <div class="hero-metrics">
@@ -652,7 +637,7 @@
               </div>
               <div class="hero-metric">
                 <span>0 %</span>
-                bidding drama — just instant buys &amp; direct chats.
+                bidding drama - just instant buys &amp; direct chats.
               </div>
               <div class="hero-metric">
                 <span>3</span>
@@ -698,11 +683,11 @@
         <div class="grid story-cards reveal" style="margin-top:60px;">
           <div class="card">
             <div class="section-eyebrow">Our story</div>
-            <div class="section-title">Built by students who were tired of messy group chats.</div>
+            <div class="section-title">BUILT <span class="accent">BY STUDENTS</span> WHO WERE TIRED OF MESSY GROUP CHATS</div>
             <p class="sub" style="font-size:13px;margin-top:8px;">
               connectr+ started as a small side project to replace chaotic WhatsApp threads,
               random spreadsheets, and overlapping Instagram stories. We wanted one calm,
-              beautiful place where students could actually <em>find</em> what they're looking for –
+              beautiful place where students could actually find what they're looking for...
               without spam or scams.
             </p>
             <div class="row" style="gap:8px;margin-top:12px;">
@@ -714,11 +699,12 @@
 
           <div class="card">
             <div class="section-eyebrow">Our mission</div>
-            <div class="section-title">Make student marketplaces feel premium, safe, and effortless.</div>
+            <div class="section-title">BUILD A <span class="accent">CIRCULAR</span>, STUDENT-POWERED CAMPUS ECONOMY</div>
             <p class="sub" style="font-size:13px;margin-top:8px;">
-              Our mission is to connect people, not just products. Every feature we ship is designed
-              to make your campus feel smaller, safer, and more circular: better reuse, less waste,
-              and more money staying within your community.
+              Our mission is to make student life more circular, not more wasteful. 
+              Every feature of connectr+ is designed to extend the life of what already exist...
+              keeping textbooks, tickets, and tech in use for longer, reducing waste, 
+              and keeping more value within your campus community.
             </p>
             <ul style="margin:14px 0 0 15px;font-size:13px;color:var(--muted);padding-left:4px;line-height:1.8;">
               <li>Browse without logging in – no friction.</li>
@@ -934,7 +920,7 @@
       <div class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
         <button class="btn neon" id="lm_buy" onclick="buyNow()">Buy now</button>
         <span class="muted" style="font-size:11px;">
-          When you buy, the seller receives your contact info automatically.
+          When you buy, a chat is created with the seller automatically.
         </span>
         <span class="pill-warning" id="lm_guestHint" style="display:none;">
           Log in to message or buy.
@@ -1063,24 +1049,24 @@
   </div>
 
   <script>
+    console.log('Script starting...');
+    
     const AUTH_BASE = 'https://auth-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
-    const CHAT_BASE = 'https://chat-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     
-    const API_AUTH_REGISTER = `${AUTH_BASE}/auth/register`;
-    const API_AUTH_LOGIN = `${AUTH_BASE}/auth/login`;
-    const API_AUTH_ME = `${AUTH_BASE}/auth/me`;
+    const API_AUTH_REGISTER = AUTH_BASE + '/auth/register';
+    const API_AUTH_LOGIN = AUTH_BASE + '/auth/login';
+    const API_AUTH_ME = AUTH_BASE + '/auth/me';
     
-    const API_LISTINGS = `${LISTINGS_BASE}/listings`;
-    const API_MY_LISTINGS = `${LISTINGS_BASE}/listings/my`;
-    const API_LISTING = id => `${LISTINGS_BASE}/listings/${id}`;
-    const API_BUY = id => `${LISTINGS_BASE}/listings/${id}/buy`;
-    const API_FAVOURITES = `${LISTINGS_BASE}/favourites`;
-    const API_FAVOURITE = id => `${LISTINGS_BASE}/favourites/${id}`;
-    const API_MESSAGES = `${LISTINGS_BASE}/messages`;
-    const API_CHAT_ROOMS = `${LISTINGS_BASE}/chat/rooms`;
-    const API_CHAT_MESSAGES = roomId => `${LISTINGS_BASE}/chat/rooms/${roomId}/messages`;
-    const API_SEND_MESSAGE = roomId => `${LISTINGS_BASE}/chat/rooms/${roomId}/messages`;
+    const API_LISTINGS = LISTINGS_BASE + '/listings';
+    const API_MY_LISTINGS = LISTINGS_BASE + '/listings/my';
+    const API_LISTING = (id) => LISTINGS_BASE + '/listings/' + id;
+    const API_BUY = (id) => LISTINGS_BASE + '/listings/' + id + '/buy';
+    const API_FAVOURITES = LISTINGS_BASE + '/favourites';
+    const API_FAVOURITE = (id) => LISTINGS_BASE + '/favourites/' + id;
+    const API_CHAT_ROOMS = LISTINGS_BASE + '/chat/rooms';
+    const API_CHAT_MESSAGES = (roomId) => LISTINGS_BASE + '/chat/rooms/' + roomId + '/messages';
+    const API_SEND_MESSAGE = (roomId) => LISTINGS_BASE + '/chat/rooms/' + roomId + '/messages';
 
     const state = {
       user: null,
@@ -1088,16 +1074,18 @@
       listings: [],
       myListings: [],
       favourites: [],
-      messages: [],
       chatRooms: [],
+      messages: [],
       selected: null,
       editingListing: null,
       openChatId: null,
       profile: { since: new Date().toISOString(), name:'', location:'', university:'' },
     };
 
-    const el  = sel => document.querySelector(sel);
-    const els = sel => Array.from(document.querySelectorAll(sel));
+    const el  = (sel) => document.querySelector(sel);
+    const els = (sel) => Array.from(document.querySelectorAll(sel));
+
+    console.log('Functions defined, starting init...');
 
     /* ==================== AUTH ==================== */
 
@@ -1114,7 +1102,7 @@
         const parsed = JSON.parse(raw);
         state.user = parsed.user || null;
         state.token = parsed.token || null;
-      }catch(e){}
+      }catch(e){console.error('Restore auth error:', e);}
     }
 
     async function fetchMe(){
@@ -1141,7 +1129,6 @@
       if(!container) return;
       container.innerHTML = '';
       
-      // Update hero auth box visibility
       const heroAuthBox = el('#heroAuthBox');
       
       if(!isAuthed()){
@@ -1158,7 +1145,6 @@
         container.appendChild(loginBtn);
         container.appendChild(regBtn);
         
-        // Show auth box in hero when logged out
         if(heroAuthBox) heroAuthBox.style.display = 'block';
       }else{
         const chip = document.createElement('div');
@@ -1176,7 +1162,7 @@
         info.style.display='flex';
         info.style.flexDirection='column';
         info.style.fontSize='11px';
-        info.innerHTML = `<strong>${escapeHtml(state.user.name || 'Student')}</strong><span class="muted">${escapeHtml(state.user.email || '')}</span>`;
+        info.innerHTML = '<strong>' + escapeHtml(state.user.name || 'Student') + '</strong><span class="muted">' + escapeHtml(state.user.email || '') + '</span>';
 
         const logoutBtn = document.createElement('button');
         logoutBtn.className='btn ghost small';
@@ -1188,7 +1174,6 @@
         container.appendChild(chip);
         container.appendChild(logoutBtn);
         
-        // Hide auth box when logged in
         if(heroAuthBox) heroAuthBox.style.display = 'none';
       }
     }
@@ -1198,6 +1183,8 @@
       state.token=null;
       state.favourites=[];
       state.myListings=[];
+      state.chatRooms=[];
+      state.messages=[];
       localStorage.removeItem('cx_auth');
       updateAuthUI();
       go('home');
@@ -1273,7 +1260,6 @@
         updateAuthUI();
         closeModal('authModal');
         
-        // Refresh listings and go to home view
         await loadListings();
         go('home');
         
@@ -1332,7 +1318,7 @@
     /* ==================== NAV ==================== */
 
     function go(view){
-      const btn = els(`.nav-btn[data-view="${view}"]`)[0];
+      const btn = els('.nav-btn[data-view="' + view + '"]')[0];
       if(btn) switchView(btn);
       else{
         els('.view').forEach(v=>v.classList.remove('active'));
@@ -1356,35 +1342,20 @@
       }
       if(id==='profile') { renderProfileStats(); renderMyListings(); }
       if(id==='home') renderHome();
-      if(id==='search') {
-        // Ensure listings are loaded before searching
-        if(state.listings.length === 0) {
-          loadListings().then(() => runSearch());
-        } else {
-          runSearch();
-        }
-      }
+      if(id==='search') runSearch();
       observeAll();
     }
 
     /* ==================== LISTINGS ==================== */
 
     async function loadListings(){
-      console.log('Loading listings from API...');
+      console.log('Loading listings...');
       try{
         const res = await fetch(API_LISTINGS);
-        console.log('API response status:', res.status);
-        
-        if(!res.ok) {
-          console.error('Failed to load listings - HTTP', res.status);
-          throw new Error('Failed to load listings');
-        }
-        
+        if(!res.ok) throw new Error('Failed to load listings');
         const data = await res.json();
-        console.log('API response data:', data);
-        
         state.listings = Array.isArray(data) ? data : (data.items || []);
-        console.log('Loaded', state.listings.length, 'listings');
+        console.log('Loaded ' + state.listings.length + ' listings');
       }catch(e){
         console.error('Failed to load listings:', e);
         state.listings = [];
@@ -1414,29 +1385,17 @@
     function renderHome(){
       const trg = el('#trendingGrid');
       const items = state.listings.slice(0,8);
-      
-      // Debug: Log listings and current user
-      console.log('Rendering home - Current user:', state.user?.email);
-      console.log('Listings:', items.map(l => ({ id: l.id, title: l.title, seller: l.seller })));
-      
       trg.innerHTML = items.map(renderListingCard).join('') ||
-        `<div class="muted">No listings yet. Log in and create the first one!</div>`;
+        '<div class="muted">No listings yet. Log in and create the first one!</div>';
       el('#metricListings').textContent = state.listings.length;
     }
 
     function runSearch(){
-      const q = (el('#searchInput')?.value||'').toLowerCase().trim();
+      const searchInput = el('#searchInput');
+      if(!searchInput) return;
       
-      // Debug logging
-      console.log('Search triggered - Query:', q);
-      console.log('Available listings:', state.listings.length);
-      console.log('Listings data:', state.listings);
-      
-      // Show loading if no listings yet
-      if(state.listings.length === 0) {
-        el('#searchResults').innerHTML = '<div class="muted">Loading listings...</div>';
-        return;
-      }
+      const q = (searchInput.value||'').toLowerCase().trim();
+      console.log('Search query:', q, 'Listings:', state.listings.length);
       
       const res = !q
         ? state.listings
@@ -1446,70 +1405,55 @@
             (x.description||'').toLowerCase().includes(q)
           );
       
-      console.log('Search results:', res.length, 'items');
-      
       el('#searchResults').innerHTML = res.map(renderListingCard).join('') ||
         '<div class="muted">No results. Try another keyword.</div>';
-      
-      // Trigger reveal animations
       observeAll();
-    }
     }
 
     function clearSearch(){
-      if(!el('#searchInput')) return;
-      el('#searchInput').value='';
+      const searchInput = el('#searchInput');
+      if(!searchInput) return;
+      searchInput.value='';
       runSearch();
     }
 
-    function renderListingCard(l, isOwn = false){
+    function renderListingCard(l){
       const fav=isFav(l.id);
       const isSold = l.status === 'sold';
-      // Check if this listing belongs to the current user
       const isMyListing = isAuthed() && state.user && state.user.email && l.seller === state.user.email;
       const priceStr = isSold ? 'Sold' :
-        (l.price > 0 ? `€${Number(l.price).toFixed(2)}` : 'Free / swap');
+        (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
 
       const soldBadge = isSold
-        ? `<span class="badge" style="border-color:rgba(255,77,106,.7);color:var(--danger);background:rgba(56,14,24,.7);">Sold</span>`
-        : `<span class="badge">Instant buy</span>`;
+        ? '<span class="badge" style="border-color:rgba(255,77,106,.7);color:var(--danger);background:rgba(56,14,24,.7);">Sold</span>'
+        : '<span class="badge">Instant buy</span>';
 
-      return `<div class="card reveal">
-        <div class="row spread" style="position:relative;z-index:1;">
-          <div style="font-weight:800;font-size:14px;max-width:78%;">
-            ${escapeHtml(l.title)}
-          </div>
-          ${!isMyListing ? `<button
-            class="seg-btn"
-            style="padding:4px 8px;font-size:12px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':''}"
-            onclick="toggleFav('${l.id}')"
-            ${!isAuthed()?'title="Log in to use favourites"':''}
-          >
-            ${fav?'★':'☆'}
-          </button>` : ''}
-        </div>
-        <div class="row spread" style="position:relative;z-index:1;">
-          <div class="muted" style="font-size:12px;">${escapeHtml(l.category || 'Misc')}</div>
-          ${soldBadge}
-        </div>
-        <div class="row spread" style="margin-top:4px;position:relative;z-index:1;">
-          <div style="font-size:18px; font-weight:800">${priceStr}</div>
-        </div>
-        <div class="row" style="gap:8px;margin-top:6px;position:relative;z-index:1;flex-wrap:wrap;">
-          ${!isMyListing ? `<button class="btn neon small" onclick='openListing(${JSON.stringify(l.id)})'>View details</button>` : ''}
-          ${isMyListing ? `
-            <button class="btn purple small" onclick='editListing(${JSON.stringify(l.id)})'>Edit</button>
-            <button class="btn danger small" onclick='deleteListing(${JSON.stringify(l.id)})'>Delete</button>
-          ` : ''}
-        </div>
-      </div>`;
+      return '<div class="card reveal">' +
+        '<div class="row spread" style="position:relative;z-index:1;">' +
+          '<div style="font-weight:800;font-size:14px;max-width:78%;">' +
+            escapeHtml(l.title) +
+          '</div>' +
+          (!isMyListing ? '<button class="seg-btn" style="padding:4px 8px;font-size:12px;' + (fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':'') + '" onclick="toggleFav(\'' + l.id + '\')" ' + (!isAuthed()?'title="Log in to use favourites"':'') + '>' + (fav?'★':'☆') + '</button>' : '') +
+        '</div>' +
+        '<div class="row spread" style="position:relative;z-index:1;">' +
+          '<div class="muted" style="font-size:12px;">' + escapeHtml(l.category || 'Misc') + '</div>' +
+          soldBadge +
+        '</div>' +
+        '<div class="row spread" style="margin-top:4px;position:relative;z-index:1;">' +
+          '<div style="font-size:18px; font-weight:800">' + priceStr + '</div>' +
+        '</div>' +
+        '<div class="row" style="gap:8px;margin-top:6px;position:relative;z-index:1;flex-wrap:wrap;">' +
+          (!isMyListing ? '<button class="btn neon small" onclick=\'openListing("' + l.id + '")\'>View details</button>' : '') +
+          (isMyListing ? '<button class="btn purple small" onclick=\'editListing("' + l.id + '")\'>Edit</button><button class="btn danger small" onclick=\'deleteListing("' + l.id + '")\'>Delete</button>' : '') +
+        '</div>' +
+      '</div>';
     }
 
     function renderMyListings(){
       const grid = el('#myListingsGrid');
       if(!grid) return;
       
-      grid.innerHTML = state.myListings.map(l => renderListingCard(l, true)).join('') ||
+      grid.innerHTML = state.myListings.map(l => renderListingCard(l)).join('') ||
         '<div class="muted">You haven\'t posted any listings yet. Click "New listing" to get started!</div>';
     }
 
@@ -1525,20 +1469,19 @@
       el('#lm_desc').textContent=l.description||'—';
       
       const priceStr = isSold ? 'Already sold' :
-        (l.price > 0 ? `€${Number(l.price).toFixed(2)}` : 'Free / swap');
+        (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
       el('#lm_price').textContent = priceStr;
       
       el('#lm_meta').textContent = [
-        `Seller: ${l.seller || 'Seller'}`,
-        l.category ? `Category: ${l.category}` : null,
-        l.createdAt ? `Posted ${timeAgo(new Date(l.createdAt).getTime())}` : null,
+        'Seller: ' + (l.seller || 'Seller'),
+        l.category ? 'Category: ' + l.category : null,
+        l.createdAt ? 'Posted ' + timeAgo(new Date(l.createdAt).getTime()) : null,
       ].filter(Boolean).join(' • ');
 
       const buyBtn = el('#lm_buy');
       const guestHint = el('#lm_guestHint');
       
       if(isMyListing){
-        // It's your own listing - hide buy button, show message
         buyBtn.style.display = 'none';
         guestHint.textContent = 'This is your listing. You cannot buy your own item.';
         guestHint.style.display='inline';
@@ -1551,7 +1494,7 @@
         buyBtn.disabled = true;
         buyBtn.textContent = 'Buy now';
         buyBtn.style.display = 'inline-block';
-        guestHint.textContent = 'Log in to message or buy.';
+        guestHint.textContent = 'Log in to buy.';
         guestHint.style.display='inline';
       } else {
         buyBtn.disabled = false;
@@ -1572,7 +1515,6 @@
       
       const listing = state.selected;
       
-      // Check if it's your own listing
       if(listing.seller === state.user.email){
         alert('You cannot buy your own listing.');
         return;
@@ -1583,7 +1525,7 @@
         return;
       }
 
-      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price||0).toFixed(2)}?\n\nA chat will be created with the seller to arrange payment and delivery.`)){
+      if(!confirm('Buy "' + listing.title + '" for €' + Number(listing.price||0).toFixed(2) + '?\n\nA chat will be created with the seller to arrange payment and delivery.')){
         return;
       }
       try{
@@ -1597,13 +1539,11 @@
         });
         if(!res.ok) throw new Error('Purchase failed');
         
-        const data = await res.json();
-        
         await loadListings();
-        await loadMessages();  // Reload to get new chat room
+        await loadMessages();
         closeModal('listingModal');
         
-        alert(`Purchase completed!\n\n✓ Item "${listing.title}" is now yours\n✓ Chat created with seller\n\nGo to Messages to coordinate delivery.`);
+        alert('Purchase completed!\n\n✓ Item "' + listing.title + '" is now yours\n✓ Chat created with seller\n\nGo to Messages to coordinate delivery.');
       }catch(e){
         console.error(e);
         alert('Could not complete purchase. Please try again.');
@@ -1815,6 +1755,7 @@
       if(!isAuthed()){
         state.chatRooms = [];
         state.messages = [];
+        renderMessages();
         return;
       }
       
@@ -1826,14 +1767,13 @@
         
         state.chatRooms = await res.json();
         
-        // Convert to messages format for UI compatibility
         state.messages = state.chatRooms.map(room => {
           const otherUser = room.buyer === state.user.email ? room.seller : room.buyer;
           return {
             id: room.id,
             listingId: room.listingId,
             peer: otherUser,
-            last: `Chat about "${room.listingTitle}"`,
+            last: 'Chat about "' + room.listingTitle + '"',
             ts: new Date(room.lastMessageAt || room.createdAt).getTime(),
             chatRoomId: room.id
           };
@@ -1864,36 +1804,18 @@
       const rows = state.messages
         .slice()
         .sort((a,b)=>b.ts-a.ts)
-        .map(m=>`
-        <div class="list-item clickable" onclick="openChat('${m.id}')">
-          <div class="row" style="gap:10px">
-            <div class="avatar">${(m.peer||'U').slice(0,1).toUpperCase()}</div>
-            <div style="flex:1">
-              <div><strong>${escapeHtml(m.peer)}</strong></div>
-              <div class="muted" style="font-size:12px">${escapeHtml(m.last)}</div>
-            </div>
-          </div>
-          <div class="muted" style="font-size:11px">${timeAgo(m.ts)}</div>
-        </div>`).join('');
+        .map(m=>
+        '<div class="list-item clickable" onclick="openChat(\'' + m.id + '\')">' +
+          '<div class="row" style="gap:10px">' +
+            '<div class="avatar">' + (m.peer||'U').slice(0,1).toUpperCase() + '</div>' +
+            '<div style="flex:1">' +
+              '<div><strong>' + escapeHtml(m.peer) + '</strong></div>' +
+              '<div class="muted" style="font-size:12px">' + escapeHtml(m.last) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="muted" style="font-size:11px">' + timeAgo(m.ts) + '</div>' +
+        '</div>').join('');
       list.innerHTML = rows;
-    }
-
-    async function ensureRoomForSelected(){
-      // This function is no longer needed - messages are created automatically when someone buys
-      return null;
-    }
-
-    async function startChat(){
-      if(!state.selected) return;
-      if(!isAuthed()){
-        openAuthModal('login');
-        return;
-      }
-      
-      // Messages are only created when someone buys an item
-      // For now, show a helpful message
-      alert('To contact the seller, click "Buy now". When you purchase an item, the seller will receive a message with your contact info to arrange pickup/delivery.');
-      closeModal('listingModal');
     }
 
     async function openChat(chatRoomId){
@@ -1904,7 +1826,6 @@
       el('#chatTitle').textContent = m.peer;
       
       try{
-        // Load messages from backend
         const res = await fetch(API_CHAT_MESSAGES(chatRoomId), {
           headers: {'Authorization': 'Bearer ' + state.token}
         });
@@ -1918,13 +1839,12 @@
           const isMe = msg.from === state.user.email;
           const isSystem = msg.from === 'system';
           
-          return `
-          <div style="display:flex; ${isMe ? 'justify-content:flex-end' : ''}">
-            <div class="bubble ${isMe ? 'me' : (isSystem ? 'them' : 'them')}" style="${isSystem ? 'background:#1a1b2e;border-color:var(--purple);' : ''}">
-              ${isSystem ? '<strong style="color:var(--neon);">System:</strong><br>' : ''}
-              ${escapeHtml(msg.message)}
-            </div>
-          </div>`;
+          return '<div style="display:flex; ' + (isMe ? 'justify-content:flex-end' : '') + '">' +
+            '<div class="bubble ' + (isMe ? 'me' : 'them') + '" style="' + (isSystem ? 'background:#1a1b2e;border-color:var(--purple);' : '') + '">' +
+              (isSystem ? '<strong style="color:var(--neon);">System:</strong><br>' : '') +
+              escapeHtml(msg.message) +
+            '</div>' +
+          '</div>';
         }).join('');
         
         openModal('chatModal');
@@ -1953,7 +1873,6 @@
         
         el('#chatInput').value = '';
         
-        // Reload chat to show new message
         await openChat(state.openChatId);
       }catch(e){
         console.error('Send message error:', e);
@@ -1994,31 +1913,34 @@
     function timeAgo(ts){
       if(!ts) return '';
       const s=Math.floor((Date.now()-ts)/1000);
-      if(s<60) return `${s}s ago`;
+      if(s<60) return s + 's ago';
       const m=Math.floor(s/60);
-      if(m<60) return `${m}m ago`;
+      if(m<60) return m + 'm ago';
       const h=Math.floor(m/60);
-      if(h<24) return `${h}h ago`;
+      if(h<24) return h + 'h ago';
       const d=Math.floor(h/24);
-      return `${d}d ago`;
+      return d + 'd ago';
     }
 
     function escapeHtml(str){
-      return (str||'').replace(/[&<>"']/g, m=>(
-        {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]
-      ));
+      return (str||'').replace(/[&<>"']/g, function(m){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m];
+      });
     }
 
     function observeAll(){
-      const io=new IntersectionObserver(es=>es.forEach(e=>{
-        if(e.isIntersecting) e.target.classList.add('in');
-      }),{threshold:.12});
-      els('.reveal').forEach(n=>io.observe(n));
+      const io=new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if(e.isIntersecting) e.target.classList.add('in');
+        });
+      },{threshold:.12});
+      els('.reveal').forEach(function(n){ io.observe(n); });
     }
 
     /* ==================== INIT ==================== */
 
     (async function init(){
+      console.log('Init starting...');
       restoreAuth();
       await fetchMe();
       updateAuthUI();
@@ -2028,26 +1950,18 @@
         if(p) state.profile = p;
       }catch(e){}
 
-      console.log('Loading listings...');
       await loadListings();
-      console.log('Listings loaded:', state.listings.length);
       
       if(isAuthed()){
         await syncFavourites();
         await loadMyListings();
         await loadMessages();
+      } else {
+        renderMessages();
       }
 
-      renderMessages();
-      
-      // If search view is active on load, run search
-      const searchView = el('#search');
-      if(searchView && searchView.classList.contains('active')) {
-        console.log('Search view is active, running initial search');
-        runSearch();
-      }
-      
       observeAll();
+      console.log('Init complete!');
     })();
   </script>
 </body>
