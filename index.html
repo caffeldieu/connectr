@@ -1356,20 +1356,37 @@
       }
       if(id==='profile') { renderProfileStats(); renderMyListings(); }
       if(id==='home') renderHome();
-      if(id==='search') runSearch();
+      if(id==='search') {
+        // Ensure listings are loaded before searching
+        if(state.listings.length === 0) {
+          loadListings().then(() => runSearch());
+        } else {
+          runSearch();
+        }
+      }
       observeAll();
     }
 
     /* ==================== LISTINGS ==================== */
 
     async function loadListings(){
+      console.log('Loading listings from API...');
       try{
         const res = await fetch(API_LISTINGS);
-        if(!res.ok) throw new Error('Failed to load listings');
+        console.log('API response status:', res.status);
+        
+        if(!res.ok) {
+          console.error('Failed to load listings - HTTP', res.status);
+          throw new Error('Failed to load listings');
+        }
+        
         const data = await res.json();
+        console.log('API response data:', data);
+        
         state.listings = Array.isArray(data) ? data : (data.items || []);
+        console.log('Loaded', state.listings.length, 'listings');
       }catch(e){
-        console.warn('Failed to load listings:', e);
+        console.error('Failed to load listings:', e);
         state.listings = [];
       }
       renderHome();
@@ -1409,6 +1426,18 @@
 
     function runSearch(){
       const q = (el('#searchInput')?.value||'').toLowerCase().trim();
+      
+      // Debug logging
+      console.log('Search triggered - Query:', q);
+      console.log('Available listings:', state.listings.length);
+      console.log('Listings data:', state.listings);
+      
+      // Show loading if no listings yet
+      if(state.listings.length === 0) {
+        el('#searchResults').innerHTML = '<div class="muted">Loading listings...</div>';
+        return;
+      }
+      
       const res = !q
         ? state.listings
         : state.listings.filter(x=>
@@ -1416,8 +1445,15 @@
             (x.category||'').toLowerCase().includes(q) ||
             (x.description||'').toLowerCase().includes(q)
           );
+      
+      console.log('Search results:', res.length, 'items');
+      
       el('#searchResults').innerHTML = res.map(renderListingCard).join('') ||
         '<div class="muted">No results. Try another keyword.</div>';
+      
+      // Trigger reveal animations
+      observeAll();
+    }
     }
 
     function clearSearch(){
@@ -1992,7 +2028,9 @@
         if(p) state.profile = p;
       }catch(e){}
 
+      console.log('Loading listings...');
       await loadListings();
+      console.log('Listings loaded:', state.listings.length);
       
       if(isAuthed()){
         await syncFavourites();
@@ -2001,6 +2039,14 @@
       }
 
       renderMessages();
+      
+      // If search view is active on load, run search
+      const searchView = el('#search');
+      if(searchView && searchView.classList.contains('active')) {
+        console.log('Search view is active, running initial search');
+        runSearch();
+      }
+      
       observeAll();
     })();
   </script>
