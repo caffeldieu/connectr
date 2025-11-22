@@ -887,8 +887,9 @@
       <div id="lm_meta" class="muted" style="margin-top:2px;font-size:12px;"></div>
       <!-- Added ID lm_actions to easily inject specific buttons -->
       <div id="lm_actions" class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
-        <!-- Content injected via JS based on ownership -->
-      </div>
+  <!-- Buttons will be inserted by JavaScript -->
+</div>
+<span class="pill-warning" id="lm_guestHint" style="display:none;margin-top:8px;"></span>
     </div>
   </div>
   <!-- Edit Listing Modal -->
@@ -1482,64 +1483,73 @@
     }
     
     function openListing(id){
-      const l=state.listings.find(x=>x.id===id);
-      if(!l) return;
-      state.selected=l;
-      
-      const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
-      const isSold = l.status === 'sold';
-      
-      el('#lm_title').textContent=l.title;
-      el('#lm_desc').textContent=l.description||'—';
-      
-      // Display image in modal
-      const imageContainer = el('#lm_image');
-      if(l.imageUrl) {
-        imageContainer.innerHTML = '<img src="' + escapeHtml(l.imageUrl) + '" style="width:100%;max-height:400px;object-fit:cover;border-radius:12px;border:1px solid var(--line);"/>';
-      } else {
-        imageContainer.innerHTML = '';
-      }
-      
-      const priceStr = isSold ? 'Already sold' :
-        (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
-      el('#lm_price').textContent = priceStr;
-      
-      el('#lm_meta').textContent = [
-        'Seller: ' + (l.seller || 'Seller'),
-        l.category ? 'Category: ' + l.category : null,
-        l.createdAt ? 'Posted ' + timeAgo(new Date(l.createdAt).getTime()) : null,
-      ].filter(Boolean).join(' • ');
-      
-      const actionsContainer = el('#lm_actions');
-      actionsContainer.innerHTML = ''; // Clear existing buttons
-
-      if(isMyListing){
-        // OWNER VIEW
-        actionsContainer.innerHTML = `
-          <button class="btn purple" onclick="editListing('${l.id}'); closeModal('listingModal');">Edit Listing</button>
-          <button class="btn danger" onclick="deleteListing('${l.id}'); closeModal('listingModal');">Delete Listing</button>
-        `;
-      } else {
-        // BUYER VIEW
-        if(isSold){
-           actionsContainer.innerHTML = `<button class="btn ghost" disabled>Item Sold</button>`;
-        } else if(!isAuthed()){
-           actionsContainer.innerHTML = `
-             <button class="btn neon" disabled>Buy now</button>
-             <span class="pill-warning">Log in to message or buy.</span>
-           `;
-        } else {
-           actionsContainer.innerHTML = `
-             <button class="btn neon" onclick="buyNow()">Buy now</button>
-             <span class="muted" style="font-size:11px;">
-               When you buy, a chat is created with the seller automatically.
-             </span>
-           `;
-        }
-      }
-      
-      openModal('listingModal');
-    }
+  const l=state.listings.find(x=>x.id===id);
+  if(!l) return;
+  state.selected=l;
+  
+  const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
+  const isSold = l.status === 'sold';
+  
+  el('#lm_title').textContent=l.title;
+  el('#lm_desc').textContent=l.description||'—';
+  
+  // Display image in modal
+  const imageContainer = el('#lm_image');
+  if(l.imageUrl) {
+    imageContainer.innerHTML = '<img src="' + escapeHtml(l.imageUrl) + '" style="width:100%;max-height:400px;object-fit:cover;border-radius:12px;border:1px solid var(--line);"/>';
+  } else {
+    imageContainer.innerHTML = '';
+  }
+  
+  const priceStr = isSold ? 'Already sold' :
+    (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
+  el('#lm_price').textContent = priceStr;
+  
+  const sellerName = l.sellerName || l.seller.split('@')[0];
+  el('#lm_meta').textContent = [
+    'Seller: ' + sellerName,
+    l.category ? 'Category: ' + l.category : null,
+    l.createdAt ? 'Posted ' + timeAgo(new Date(l.createdAt).getTime()) : null,
+  ].filter(Boolean).join(' • ');
+  
+  const actionButtons = el('#lm_actions');
+  const guestHint = el('#lm_guestHint');
+  
+  // Clear previous buttons
+  actionButtons.innerHTML = '';
+  guestHint.style.display = 'none';
+  
+  if(isMyListing){
+    // Show edit/delete for own listings
+    actionButtons.innerHTML = `
+      <button class="btn purple" onclick="editListingFromModal('${l.id}')">Edit listing</button>
+      <button class="btn danger" onclick="deleteListingFromModal('${l.id}')">Delete listing</button>
+      <span class="muted" style="font-size:11px;">This is your listing</span>
+    `;
+  } else if(isSold){
+    actionButtons.innerHTML = `
+      <button class="btn" disabled style="opacity:0.5;">Sold</button>
+      <span class="muted" style="font-size:11px;">This item has been sold</span>
+    `;
+  } else if(!isAuthed()){
+    actionButtons.innerHTML = `
+      <button class="btn" disabled style="opacity:0.5;">Buy now</button>
+      <button class="btn" disabled style="opacity:0.5;">Message seller</button>
+    `;
+    guestHint.textContent = 'Log in to buy or message the seller';
+    guestHint.style.display='inline';
+  } else {
+    // Show buy + message for other users' listings
+    actionButtons.innerHTML = `
+      <button class="btn neon" onclick="buyNow()">Buy now €${Number(l.price||0).toFixed(2)}</button>
+      <button class="btn purple" onclick="createChatWithSeller()">Message seller</button>
+      <span class="muted" style="font-size:11px;">Buy instantly or chat with ${sellerName} first</span>
+    `;
+  }
+  
+  openModal('listingModal');
+}
+   
     
     async function buyNow(){
       if(!state.selected) return;
@@ -2029,6 +2039,23 @@
       },{threshold:.12});
       els('.reveal').forEach(function(n){ io.observe(n); });
     }
+
+      function editListingFromModal(id){
+      closeModal('listingModal');
+      editListing(id);
+    }
+    
+    function deleteListingFromModal(id){
+      closeModal('listingModal');
+      deleteListing(id);
+    }
+    
+    async function createChatWithSeller(){
+      if(!state.selected) return;
+      alert('Feature coming soon! For now, use "Buy now" to create a chat automatically when you purchase the item.');
+      // TODO: Implement direct messaging without buying
+    }
+
     
     /* ==================== INIT ==================== */
     
