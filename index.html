@@ -1013,8 +1013,7 @@
     const AUTH_BASE = "https://users-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io";
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
     
-    // REPLACE THIS WITH YOUR SAS TOKEN (generate it using the command below)
-    const STORAGE_SAS_TOKEN = 'YOUR_SAS_TOKEN_HERE';
+    const STORAGE_SAS_TOKEN = 'sp=racwdl&st=2025-11-22T19:14:08Z&se=2026-11-30T03:29:08Z&spr=https&sv=2024-11-04&sr=c&sig=3pxROwXbLLBKNa697eXr2rhH6prcWK%2FsV35AtUuecaY%3D';
     
     const API_AUTH_REGISTER = AUTH_BASE + '/auth/register';
     const API_AUTH_LOGIN = AUTH_BASE + '/auth/login';
@@ -1070,7 +1069,7 @@
     
     async function uploadImageToStorage(file) {
       const storageAccount = 'connectrstorage';
-      const containerName = 'listing-images';
+      const containerName = 'listing';
       
       if(STORAGE_SAS_TOKEN === 'YOUR_SAS_TOKEN_HERE') {
         throw new Error('Please configure your Azure Storage SAS token');
