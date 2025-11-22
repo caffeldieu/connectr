@@ -1421,7 +1421,7 @@
     function renderListingCard(l){
       const fav=isFav(l.id);
       const isSold = l.status === 'sold';
-      const isMyListing = isAuthed() && state.user && state.user.email && l.seller === state.user.email;
+      const isMyListing = isAuthed() && state.user && state.user.user_id && l.sellerId === state.user.user_id;
       const priceStr = isSold ? 'Sold' :
         (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
       
@@ -1487,7 +1487,7 @@
   if(!l) return;
   state.selected=l;
   
-  const isMyListing = isAuthed() && state.user && l.seller === state.user.email;
+  const isMyListing = isAuthed() && state.user && state.user.user_id && l.sellerId === state.user.user_id;
   const isSold = l.status === 'sold';
   
   el('#lm_title').textContent=l.title;
@@ -1558,10 +1558,11 @@
       
       const listing = state.selected;
       
-      if(listing.seller === state.user.email){
+      if (listing.sellerId && state.user.user_id && listing.sellerId === state.user.user_id) {
         alert('You cannot buy your own listing.');
         return;
       }
+
       
       if(listing.status === 'sold'){
         alert('This item is already sold.');
