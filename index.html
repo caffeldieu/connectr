@@ -31,7 +31,6 @@
       font-family:'Garet',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
     a{color:inherit;text-decoration:none}
-
     .app{
       display:grid;
       grid-template-rows:72px 1fr;
@@ -40,7 +39,6 @@
       margin:0 auto;
       padding:0 12px 0 12px;
     }
-
     header{
       display:flex;
       align-items:center;
@@ -54,7 +52,6 @@
       backdrop-filter:blur(12px);
       border-bottom:1px solid var(--line);
     }
-
     .brand{
       display:flex;
       align-items:center;
@@ -91,7 +88,6 @@
     }
     .brand-name{font-size:22px}
     .brand-tag{font-size:11px;color:var(--muted);margin-top:2px}
-
     .header-center{
       display:flex;
       gap:8px;
@@ -102,7 +98,6 @@
       gap:8px;
       align-items:center;
     }
-
     .btn{
       appearance:none;
       border:1px solid var(--line);
@@ -161,10 +156,8 @@
       background:#ff2e4f;
       box-shadow:0 8px 20px rgba(255,77,106,.4);
     }
-
     .btn.small{padding:6px 10px;font-size:12px}
     .btn.icon-only{padding:6px 8px;border-radius:12px}
-
     .pill{
       display:inline-flex;
       align-items:center;
@@ -181,16 +174,13 @@
       box-shadow:0 0 20px rgba(97,104,255,.2);
       backdrop-filter:blur(10px);
     }
-
     main{
       display:grid;
       grid-template-rows:1fr 72px;
       padding-top:4px;
     }
-
     .view{display:none;padding:30px 4px 40px;}
     .view.active{display:block}
-
     nav{
       position:sticky;
       bottom:0;
@@ -231,7 +221,6 @@
     }
     .nav-btn.active{color:#ffffff}
     .nav-btn.active::before{background:var(--neon)}
-
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
@@ -274,6 +263,13 @@
       opacity:.75;
       pointer-events:none;
     }
+    .listing-image{
+      width:100%;
+      height:180px;
+      object-fit:cover;
+      border-radius:12px;
+      margin-bottom:12px;
+    }
     .row{display:flex;gap:12px;align-items:center}
     .row.spread{justify-content:space-between}
     .muted{color:var(--muted)}
@@ -294,12 +290,12 @@
       font-size:11px;
       color:var(--muted);
     }
-
     input[type=text],
     input[type=email],
     input[type=password],
     input[type=number],
     input[type=date],
+    input[type=file],
     select,
     textarea{
       width:100%;
@@ -311,9 +307,12 @@
       font-family:inherit;
       font-size:13px;
     }
+    input[type=file]{
+      padding:8px;
+      cursor:pointer;
+    }
     textarea{min-height:120px;resize:vertical}
     label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
-
     .seg{display:flex;gap:8px;flex-wrap:wrap}
     .seg .seg-btn{
       padding:8px 10px;
@@ -330,7 +329,6 @@
       font-weight:800;
       box-shadow:0 0 14px rgba(94,23,235,.5);
     }
-
     .hero{
       padding:60px 0 50px;
       display:flex;
@@ -433,7 +431,6 @@
       box-shadow:0 0 16px rgba(193,255,114,.9), 0 0 4px rgba(193,255,114,1);
       flex-shrink:0;
     }
-
     .tagline-glow{
       font-size:11px;
       color:var(--neon);
@@ -443,7 +440,6 @@
       font-weight:700;
       text-shadow:0 0 20px rgba(193,255,114,.6);
     }
-
     .section-title{
       font-size:16px;
       font-weight:800;
@@ -457,7 +453,6 @@
       color:var(--muted);
       margin-bottom:6px;
     }
-
     .list{display:flex;flex-direction:column;gap:12px}
     .list-item{
       display:flex;
@@ -490,7 +485,6 @@
     }
     .bubble.me{background:var(--purple)}
     .bubble.them{background:#171821}
-
     .modal{
       position:fixed;
       inset:0;
@@ -523,12 +517,10 @@
       opacity:.7;
       pointer-events:none;
     }
-
     .pill-warning{
       font-size:11px;
       color:var(--danger);
     }
-
     .auth-tabs{
       display:flex;
       gap:6px;
@@ -551,13 +543,11 @@
       background:var(--purple);
       color:white;
     }
-
     .error-text{
       color:var(--danger);
       font-size:12px;
       margin-top:4px;
     }
-
     .reveal{
       opacity:0;
       transform:translateY(24px);
@@ -567,7 +557,6 @@
       opacity:1;
       transform:none;
     }
-
     @media(min-width:880px){
       .headline{font-size:68px;letter-spacing:-1px;}
     }
@@ -601,7 +590,6 @@
           <div class="brand-tag">Campus marketplace, reimagined</div>
         </div>
       </div>
-
       <div class="header-center">
         <button class="btn ghost small" onclick="go('home')">Home</button>
         <button class="btn ghost small" onclick="go('search')">Browse</button>
@@ -609,14 +597,11 @@
           New listing
         </button>
       </div>
-
       <div class="header-auth" id="headerAuth"></div>
     </header>
-
     <main>
       <!-- HOME -->
       <section id="home" class="view active">
-        <!-- Hero entry section -->
         <div class="hero reveal" id="heroSection">
           <div>
             <div class="pill">
@@ -630,7 +615,6 @@
             <p class="sub">
               Built by students exclusive for students. Browse a selection of books, tickets, and tech - then log in to favourite, message, and buy in one effortless experience.
             </p>
-
             <div class="hero-metrics">
               <div class="hero-metric">
                 <span id="metricListings">0</span>
@@ -646,7 +630,6 @@
               </div>
             </div>
           </div>
-
           <div class="hero-right" id="heroAuthBox">
             <div class="tagline-glow">A premium experience for students</div>
             <div class="hero-right-title">Your next favourite item is probably already here.</div>
@@ -679,8 +662,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Our story / Our mission -->
         <div class="grid story-cards reveal" style="margin-top:60px;">
           <div class="card">
             <div class="section-eyebrow">Our story</div>
@@ -697,7 +678,6 @@
               <span class="chip">Zero bidding wars</span>
             </div>
           </div>
-
           <div class="card">
             <div class="section-eyebrow">Our mission</div>
             <div class="section-title">BUILD A <span class="accent">CIRCULAR</span>, STUDENT-POWERED CAMPUS ECONOMY</div>
@@ -714,8 +694,6 @@
             </ul>
           </div>
         </div>
-
-        <!-- Trending listings -->
         <div class="card reveal" style="margin-top:40px; padding-bottom:30px;">
           <div class="row spread">
             <div>
@@ -727,7 +705,6 @@
           <div id="trendingGrid" class="grid" style="margin-top:10px"></div>
         </div>
       </section>
-
       <!-- SEARCH -->
       <section id="search" class="view">
         <div class="card reveal">
@@ -747,7 +724,6 @@
         </div>
         <div id="searchResults" class="grid reveal" style="margin-top:16px"></div>
       </section>
-
       <!-- FAVOURITES -->
       <section id="favourites" class="view">
         <div class="row spread reveal" style="margin-bottom:12px">
@@ -756,7 +732,6 @@
         </div>
         <div id="favGrid" class="grid reveal"></div>
       </section>
-
       <!-- POST -->
       <section id="post" class="view">
         <div class="card reveal">
@@ -779,6 +754,11 @@
               <label>Description</label>
               <textarea id="p_desc" placeholder="Describe the item, its condition, and any details students should know…"></textarea>
             </div>
+            <div>
+              <label>Photo (optional)</label>
+              <input id="p_image" type="file" accept="image/*"/>
+              <div id="imagePreview" style="margin-top:12px;max-width:300px;"></div>
+            </div>
             <div class="row" style="gap:16px; flex-wrap:wrap">
               <div style="flex:1 1 160px">
                 <label>Price (instant buy)</label>
@@ -794,7 +774,6 @@
           </div>
         </div>
       </section>
-
       <!-- MESSAGES -->
       <section id="messages" class="view">
         <div class="row spread reveal" style="margin-bottom:10px">
@@ -806,7 +785,6 @@
         </div>
         <div id="msgList" class="list reveal"></div>
       </section>
-
       <!-- PROFILE -->
       <section id="profile" class="view">
         <div class="card reveal">
@@ -858,8 +836,6 @@
             </div>
           </div>
         </div>
-
-        <!-- MY LISTINGS SECTION -->
         <div class="card reveal" style="margin-top:16px;">
           <div class="row spread">
             <div>
@@ -871,7 +847,6 @@
           <div id="myListingsGrid" class="grid" style="margin-top:10px"></div>
         </div>
       </section>
-
       <nav>
         <div class="nav-btn active" data-view="home" onclick="switchView(this)">
           <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z"/></svg>
@@ -896,7 +871,6 @@
       </nav>
     </main>
   </div>
-
   <!-- Listing modal -->
   <div id="listingModal" class="modal" onclick="backdropClose(event)">
     <div class="sheet">
@@ -907,10 +881,10 @@
         </div>
         <button class="btn icon-only" onclick="closeModal('listingModal')">✕</button>
       </div>
+      <div id="lm_image" style="margin:12px 0;"></div>
       <div id="lm_desc" class="muted" style="margin:8px 0 14px 0"></div>
       <div id="lm_price" style="font-size:18px;font-weight:800;margin-bottom:4px;"></div>
       <div id="lm_meta" class="muted" style="margin-top:2px;font-size:12px;"></div>
-
       <div class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
         <button class="btn neon" id="lm_buy" onclick="buyNow()">Buy now</button>
         <span class="muted" style="font-size:11px;">
@@ -922,7 +896,6 @@
       </div>
     </div>
   </div>
-
   <!-- Edit Listing Modal -->
   <div id="editListingModal" class="modal" onclick="backdropClose(event)">
     <div class="sheet">
@@ -933,7 +906,6 @@
         </div>
         <button class="btn icon-only" onclick="closeModal('editListingModal')">✕</button>
       </div>
-
       <div class="grid" style="grid-template-columns:1fr;position:relative;z-index:1;">
         <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap">
           <div style="flex:1 1 320px">
@@ -969,7 +941,6 @@
       </div>
     </div>
   </div>
-
   <!-- Chat modal -->
   <div id="chatModal" class="modal" onclick="backdropClose(event)">
     <div class="sheet">
@@ -984,7 +955,6 @@
       </div>
     </div>
   </div>
-
   <!-- Auth modal -->
   <div id="authModal" class="modal" onclick="backdropClose(event)">
     <div class="sheet" style="max-width:480px;">
@@ -995,12 +965,10 @@
         </div>
         <button class="btn icon-only" onclick="closeModal('authModal')">✕</button>
       </div>
-
       <div class="auth-tabs">
         <div id="tabLogin" class="auth-tab active" onclick="switchAuthMode('login')">Log in</div>
         <div id="tabRegister" class="auth-tab" onclick="switchAuthMode('register')">Register</div>
       </div>
-
       <div id="authFormLogin">
         <div style="margin-bottom:8px;">
           <label>Email</label>
@@ -1013,7 +981,6 @@
         <div id="loginError" class="error-text" style="display:none;"></div>
         <button class="btn neon" style="margin-top:10px;width:100%;" onclick="submitLogin()">Log in</button>
       </div>
-
       <div id="authFormRegister" style="display:none;">
         <div style="margin-bottom:8px;">
           <label>Name</label>
@@ -1034,19 +1001,20 @@
         <div id="registerError" class="error-text" style="display:none;"></div>
         <button class="btn neon" style="margin-top:10px;width:100%;" onclick="submitRegister()">Create account</button>
       </div>
-
       <div class="muted" style="font-size:11px;margin-top:10px;">
         Once logged in you can post listings, favourite items, start chats with sellers,
         and buy instantly at the listed price.
       </div>
     </div>
   </div>
-
   <script>
     console.log('Script starting...');
     
     const AUTH_BASE = "https://users-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io";
     const LISTINGS_BASE = 'https://listings-svc.bluecoast-b88fe4f5.northeurope.azurecontainerapps.io';
+    
+    // REPLACE THIS WITH YOUR SAS TOKEN (generate it using the command below)
+    const STORAGE_SAS_TOKEN = 'YOUR_SAS_TOKEN_HERE';
     
     const API_AUTH_REGISTER = AUTH_BASE + '/auth/register';
     const API_AUTH_LOGIN = AUTH_BASE + '/auth/login';
@@ -1061,7 +1029,7 @@
     const API_CHAT_ROOMS = LISTINGS_BASE + '/chat/rooms';
     const API_CHAT_MESSAGES = (roomId) => LISTINGS_BASE + '/chat/rooms/' + roomId + '/messages';
     const API_SEND_MESSAGE = (roomId) => LISTINGS_BASE + '/chat/rooms/' + roomId + '/messages';
-
+    
     const state = {
       user: null,
       token: null,
@@ -1075,20 +1043,64 @@
       openChatId: null,
       profile: { since: new Date().toISOString(), name:'', location:'', university:'' },
     };
-
+    
     const el  = (sel) => document.querySelector(sel);
     const els = (sel) => Array.from(document.querySelectorAll(sel));
-
+    
     console.log('Functions defined, starting init...');
-
+    
+    /* ==================== IMAGE UPLOAD ==================== */
+    
+    // Image preview
+    const imageInput = el('#p_image');
+    if(imageInput) {
+      imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            el('#imagePreview').innerHTML = '<img src="' + e.target.result + '" style="width:100%;border-radius:12px;border:1px solid var(--line);"/>';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          el('#imagePreview').innerHTML = '';
+        }
+      });
+    }
+    
+    async function uploadImageToStorage(file) {
+      const storageAccount = 'connectrstorage';
+      const containerName = 'listing-images';
+      
+      if(STORAGE_SAS_TOKEN === 'YOUR_SAS_TOKEN_HERE') {
+        throw new Error('Please configure your Azure Storage SAS token');
+      }
+      
+      const fileName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.]/g, '-');
+      const url = `https://${storageAccount}.blob.core.windows.net/${containerName}/${fileName}?${STORAGE_SAS_TOKEN}`;
+      
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'x-ms-blob-type': 'BlockBlob',
+          'Content-Type': file.type
+        },
+        body: file
+      });
+      
+      if(!response.ok) throw new Error('Image upload failed');
+      
+      return `https://${storageAccount}.blob.core.windows.net/${containerName}/${fileName}`;
+    }
+    
     /* ==================== AUTH ==================== */
-
+    
     function isAuthed(){ return !!state.user && !!state.token; }
-
+    
     function persistAuth(){
       localStorage.setItem('cx_auth', JSON.stringify({user:state.user, token:state.token}));
     }
-
+    
     function restoreAuth(){
       try{
         const raw = localStorage.getItem('cx_auth');
@@ -1098,7 +1110,7 @@
         state.token = parsed.token || null;
       }catch(e){console.error('Restore auth error:', e);}
     }
-
+    
     async function fetchMe(){
       if(!state.token) return;
       try{
@@ -1117,7 +1129,7 @@
         localStorage.removeItem('cx_auth');
       }
     }
-
+    
     function updateAuthUI(){
       const container = el('#headerAuth');
       if(!container) return;
@@ -1130,12 +1142,12 @@
         loginBtn.className = 'btn ghost small';
         loginBtn.textContent = 'Log in';
         loginBtn.onclick = () => openAuthModal('login');
-
+        
         const regBtn = document.createElement('button');
         regBtn.className = 'btn neon small';
         regBtn.textContent = 'Register';
         regBtn.onclick = () => openAuthModal('register');
-
+        
         container.appendChild(loginBtn);
         container.appendChild(regBtn);
         
@@ -1145,24 +1157,24 @@
         chip.style.display='flex';
         chip.style.alignItems='center';
         chip.style.gap='8px';
-
+        
         const avatar = document.createElement('div');
         avatar.className='avatar';
         avatar.style.width='32px';
         avatar.style.height='32px';
         avatar.textContent = (state.user.name || state.user.email || 'U').slice(0,1).toUpperCase();
-
+        
         const info = document.createElement('div');
         info.style.display='flex';
         info.style.flexDirection='column';
         info.style.fontSize='11px';
         info.innerHTML = '<strong>' + escapeHtml(state.user.name || 'Student') + '</strong><span class="muted">' + escapeHtml(state.user.email || '') + '</span>';
-
+        
         const logoutBtn = document.createElement('button');
         logoutBtn.className='btn ghost small';
         logoutBtn.textContent='Log out';
         logoutBtn.onclick = logout;
-
+        
         chip.appendChild(avatar);
         chip.appendChild(info);
         container.appendChild(chip);
@@ -1171,7 +1183,7 @@
         if(heroAuthBox) heroAuthBox.style.display = 'none';
       }
     }
-
+    
     function logout(){
       state.user=null;
       state.token=null;
@@ -1184,12 +1196,12 @@
       go('home');
       alert('You have been logged out.');
     }
-
+    
     function openAuthModal(mode){
       switchAuthMode(mode || 'login');
       openModal('authModal');
     }
-
+    
     function switchAuthMode(mode){
       const loginTab = el('#tabLogin');
       const regTab   = el('#tabRegister');
@@ -1197,7 +1209,7 @@
       const regBox   = el('#authFormRegister');
       const title    = el('#authTitle');
       const eyebrow  = el('#authEyebrow');
-
+      
       if(mode === 'register'){
         loginTab.classList.remove('active');
         regTab.classList.add('active');
@@ -1214,42 +1226,42 @@
         eyebrow.textContent='Welcome back';
       }
     }
-
+    
     async function submitLogin(){
       const email = el('#login_email').value.trim();
       const pwd   = el('#login_password').value.trim();
       const errEl = el('#loginError');
-
+      
       errEl.style.display = 'none';
       errEl.textContent   = '';
-
+      
       if(!email || !pwd){
         errEl.textContent='Please enter email and password.';
         errEl.style.display='block';
         return;
       }
-
+      
       try{
         const res = await fetch(API_AUTH_LOGIN,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({email:email,password:pwd})
         });
-
+        
         if(!res.ok) throw new Error('Login failed');
-
+        
         const data = await res.json();
         state.token = data.access_token || data.token;
-
+        
         if(!state.token) throw new Error('Missing token');
-
+        
         state.user = { email };
-
+        
         await fetchMe();
         await syncFavourites();
         await loadMyListings();
         await loadMessages();
-
+        
         persistAuth();
         updateAuthUI();
         closeModal('authModal');
@@ -1264,7 +1276,7 @@
         errEl.style.display='block';
       }
     }
-
+    
     async function submitRegister(){
       const name = el('#reg_name').value.trim();
       const email = el('#reg_email').value.trim();
@@ -1273,25 +1285,25 @@
       const errEl = el('#registerError');
       errEl.style.display='none';
       errEl.textContent='';
-
+      
       if(!name || !email || !pwd){
         errEl.textContent='Please fill in name, email and password.';
         errEl.style.display='block';
         return;
       }
-
+      
       try{
         const res = await fetch(API_AUTH_REGISTER,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({display_name:name,email:email,password:pwd})
         });
-
+        
         if(!res.ok){
           const data = await res.json();
           throw new Error(data.detail || 'Registration failed');
         }
-
+        
         alert('Account created successfully. Please log in with your new email and password.');
         switchAuthMode('login');
       }catch(e){
@@ -1300,7 +1312,7 @@
         errEl.style.display='block';
       }
     }
-
+    
     function onRequireAuth(action){
       if(!isAuthed()){
         openAuthModal('login');
@@ -1308,9 +1320,9 @@
       }
       action && action();
     }
-
+    
     /* ==================== NAV ==================== */
-
+    
     function go(view){
       const btn = els('.nav-btn[data-view="' + view + '"]')[0];
       if(btn) switchView(btn);
@@ -1321,14 +1333,14 @@
       }
       observeAll();
     }
-
+    
     function switchView(btn){
       els('.nav-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       const id = btn.getAttribute('data-view');
       els('.view').forEach(v=>v.classList.remove('active'));
       el('#'+id).classList.add('active');
-
+      
       if(id==='favourites') renderFavourites();
       if(id==='messages') {
         if(isAuthed()) loadMessages();
@@ -1339,9 +1351,9 @@
       if(id==='search') runSearch();
       observeAll();
     }
-
+    
     /* ==================== LISTINGS ==================== */
-
+    
     async function loadListings(){
       console.log('Loading listings...');
       try{
@@ -1359,7 +1371,7 @@
       renderFavourites();
       renderProfileStats();
     }
-
+    
     async function loadMyListings(){
       if(!isAuthed()) return;
       try{
@@ -1375,7 +1387,7 @@
       renderMyListings();
       renderProfileStats();
     }
-
+    
     function renderHome(){
       const trg = el('#trendingGrid');
       const items = state.listings.slice(0,8);
@@ -1383,7 +1395,7 @@
         '<div class="muted">No listings yet. Log in and create the first one!</div>';
       el('#metricListings').textContent = state.listings.length;
     }
-
+    
     function runSearch(){
       const searchInput = el('#searchInput');
       if(!searchInput) return;
@@ -1403,26 +1415,31 @@
         '<div class="muted">No results. Try another keyword.</div>';
       observeAll();
     }
-
+    
     function clearSearch(){
       const searchInput = el('#searchInput');
       if(!searchInput) return;
       searchInput.value='';
       runSearch();
     }
-
+    
     function renderListingCard(l){
       const fav=isFav(l.id);
       const isSold = l.status === 'sold';
       const isMyListing = isAuthed() && state.user && state.user.email && l.seller === state.user.email;
       const priceStr = isSold ? 'Sold' :
         (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
-
+      
       const soldBadge = isSold
         ? '<span class="badge" style="border-color:rgba(255,77,106,.7);color:var(--danger);background:rgba(56,14,24,.7);">Sold</span>'
         : '<span class="badge">Instant buy</span>';
-
+      
+      const imageHtml = l.imageUrl 
+        ? '<img src="' + escapeHtml(l.imageUrl) + '" class="listing-image" alt="' + escapeHtml(l.title) + '"/>'
+        : '';
+      
       return '<div class="card reveal">' +
+        imageHtml +
         '<div class="row spread" style="position:relative;z-index:1;">' +
           '<div style="font-weight:800;font-size:14px;max-width:78%;">' +
             escapeHtml(l.title) +
@@ -1442,7 +1459,7 @@
         '</div>' +
       '</div>';
     }
-
+    
     function renderMyListings(){
       const grid = el('#myListingsGrid');
       if(!grid) return;
@@ -1450,7 +1467,7 @@
       grid.innerHTML = state.myListings.map(l => renderListingCard(l)).join('') ||
         '<div class="muted">You haven\'t posted any listings yet. Click "New listing" to get started!</div>';
     }
-
+    
     function openListing(id){
       const l=state.listings.find(x=>x.id===id);
       if(!l) return;
@@ -1462,6 +1479,14 @@
       el('#lm_title').textContent=l.title;
       el('#lm_desc').textContent=l.description||'—';
       
+      // Display image in modal
+      const imageContainer = el('#lm_image');
+      if(l.imageUrl) {
+        imageContainer.innerHTML = '<img src="' + escapeHtml(l.imageUrl) + '" style="width:100%;max-height:400px;object-fit:cover;border-radius:12px;border:1px solid var(--line);"/>';
+      } else {
+        imageContainer.innerHTML = '';
+      }
+      
       const priceStr = isSold ? 'Already sold' :
         (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
       el('#lm_price').textContent = priceStr;
@@ -1471,7 +1496,7 @@
         l.category ? 'Category: ' + l.category : null,
         l.createdAt ? 'Posted ' + timeAgo(new Date(l.createdAt).getTime()) : null,
       ].filter(Boolean).join(' • ');
-
+      
       const buyBtn = el('#lm_buy');
       const guestHint = el('#lm_guestHint');
       
@@ -1496,10 +1521,10 @@
         buyBtn.style.display = 'inline-block';
         guestHint.style.display='none';
       }
-
+      
       openModal('listingModal');
     }
-
+    
     async function buyNow(){
       if(!state.selected) return;
       if(!isAuthed()){
@@ -1518,7 +1543,7 @@
         alert('This item is already sold.');
         return;
       }
-
+      
       if(!confirm('Buy "' + listing.title + '" for €' + Number(listing.price||0).toFixed(2) + '?\n\nA chat will be created with the seller to arrange payment and delivery.')){
         return;
       }
@@ -1543,7 +1568,7 @@
         alert('Could not complete purchase. Please try again.');
       }
     }
-
+    
     async function submitListing(){
       if(!isAuthed()){
         openAuthModal('login');
@@ -1555,11 +1580,29 @@
         return;
       }
       
+      let imageUrl = null;
+      const imageFile = el('#p_image').files[0];
+      
+      if(imageFile) {
+        try {
+          imageUrl = await uploadImageToStorage(imageFile);
+          console.log('Image uploaded:', imageUrl);
+        } catch(e) {
+          console.error('Image upload failed:', e);
+          if(e.message.includes('SAS token')) {
+            alert('Image upload is not configured. Please contact support or proceed without an image.');
+            return;
+          }
+          alert('Image upload failed. You can still create the listing without an image.');
+        }
+      }
+      
       const listing = {
         title,
         category: el('#p_category').value.trim(),
         description: el('#p_desc').value.trim(),
         price: Number(el('#p_price').value||0),
+        imageUrl: imageUrl
       };
       
       try{
@@ -1581,6 +1624,8 @@
         el('#p_category').value = '';
         el('#p_desc').value = '';
         el('#p_price').value = '';
+        el('#p_image').value = '';
+        el('#imagePreview').innerHTML = '';
         
         alert('Listing published!');
         go('search');
@@ -1589,7 +1634,7 @@
         alert('Could not publish listing. Please try again.');
       }
     }
-
+    
     function editListing(id){
       const l = state.myListings.find(x => x.id === id);
       if(!l) return;
@@ -1604,7 +1649,7 @@
       
       openModal('editListingModal');
     }
-
+    
     async function submitEditListing(){
       if(!state.editingListing) return;
       
@@ -1637,7 +1682,7 @@
         alert('Could not update listing. Please try again.');
       }
     }
-
+    
     async function deleteListing(id){
       if(!confirm('Are you sure you want to delete this listing?')) return;
       
@@ -1657,9 +1702,9 @@
         alert('Could not delete listing. Please try again.');
       }
     }
-
+    
     /* ==================== FAVOURITES ==================== */
-
+    
     async function syncFavourites(){
       if(!isAuthed()) {
         state.favourites = [];
@@ -1679,9 +1724,9 @@
       renderFavourites();
       renderProfileStats();
     }
-
+    
     function isFav(id){ return state.favourites.includes(id); }
-
+    
     async function toggleFav(id){
       if(!isAuthed()){
         openAuthModal('login');
@@ -1716,7 +1761,7 @@
         alert('Could not update favourites. Please try again.');
       }
     }
-
+    
     async function clearFavourites(){
       if(!confirm('Remove all favourites?')) return;
       
@@ -1735,15 +1780,15 @@
         alert('Could not clear favourites.');
       }
     }
-
+    
     function renderFavourites(){
       const favs = state.listings.filter(l=> state.favourites.includes(l.id));
       el('#favGrid').innerHTML = favs.map(renderListingCard).join('') ||
         '<div class="muted">Nothing here yet. Tap the ★ on listings to save them.</div>';
     }
-
+    
     /* ==================== MESSAGES & CHAT ==================== */
-
+    
     async function loadMessages(){
       if(!isAuthed()){
         state.chatRooms = [];
@@ -1780,7 +1825,7 @@
       
       renderMessages();
     }
-
+    
     function renderMessages(){
       const list = el('#msgList');
       
@@ -1810,7 +1855,7 @@
         '</div>').join('');
       list.innerHTML = rows;
     }
-
+    
     async function openChat(chatRoomId){
       const m = state.messages.find(x=>x.id===chatRoomId);
       if(!m) return;
@@ -1849,7 +1894,7 @@
         alert('Could not load chat messages.');
       }
     }
-
+    
     async function sendChat(){
       const msg = el('#chatInput').value.trim();
       if(!msg) return;
@@ -1874,9 +1919,9 @@
         alert('Could not send message. Please try again.');
       }
     }
-
+    
     /* ==================== PROFILE ==================== */
-
+    
     function renderProfileStats(){
       const since = state.user?.createdAt || state.profile.since;
       el('#pf_since').textContent = since ? new Date(since).toLocaleDateString() : '—';
@@ -1888,7 +1933,7 @@
       el('#stat_purchases').textContent = 0;
       el('#avatar').textContent = (state.user?.name || 'U').slice(0,1).toUpperCase();
     }
-
+    
     function saveProfile(){
       state.profile.name = el('#pf_name').value.trim();
       state.profile.location = el('#pf_location').value.trim();
@@ -1896,15 +1941,15 @@
       localStorage.setItem('cx_profile', JSON.stringify(state.profile));
       alert('Profile saved locally.');
     }
-
+    
     /* ==================== MODAL + HELPERS ==================== */
-
+    
     function openModal(id){ el('#'+id).style.display='flex'; }
     function closeModal(id){ el('#'+id).style.display='none'; }
     function backdropClose(e){
       if(e.target.classList.contains('modal')) e.target.style.display='none';
     }
-
+    
     function timeAgo(ts){
       if(!ts) return '';
       const s=Math.floor((Date.now()-ts)/1000);
@@ -1916,7 +1961,7 @@
       const d=Math.floor(h/24);
       return d + 'd ago';
     }
-
+    
     function formatMessageTime(dateString){
       if(!dateString) return '';
       
@@ -1927,7 +1972,6 @@
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
       
-      // If today, show time
       if(diffDays === 0){
         const hours = date.getHours();
         const mins = date.getMinutes();
@@ -1935,38 +1979,32 @@
         const displayHours = hours % 12 || 12;
         const displayMins = mins < 10 ? '0' + mins : mins;
         
-        // If less than 1 minute ago, show "Just now"
         if(diffMins < 1) return 'Just now';
-        // If less than 1 hour ago, show "X min ago"
         if(diffMins < 60) return diffMins + ' min ago';
-        // Otherwise show time
         return displayHours + ':' + displayMins + ' ' + ampm;
       }
       
-      // If yesterday
       if(diffDays === 1){
         return 'Yesterday';
       }
       
-      // If within last week, show day name
       if(diffDays < 7){
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         return days[date.getDay()];
       }
       
-      // Otherwise show date
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       return day + '/' + month + '/' + year;
     }
-
+    
     function escapeHtml(str){
       return (str||'').replace(/[&<>"']/g, function(m){
         return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m];
       });
     }
-
+    
     function observeAll(){
       const io=new IntersectionObserver(function(es){
         es.forEach(function(e){
@@ -1975,20 +2013,20 @@
       },{threshold:.12});
       els('.reveal').forEach(function(n){ io.observe(n); });
     }
-
+    
     /* ==================== INIT ==================== */
-
+    
     (async function init(){
       console.log('Init starting...');
       restoreAuth();
       await fetchMe();
       updateAuthUI();
-
+      
       try{
         const p = JSON.parse(localStorage.getItem('cx_profile')||'null');
         if(p) state.profile = p;
       }catch(e){}
-
+      
       await loadListings();
       
       if(isAuthed()){
@@ -1998,7 +2036,7 @@
       } else {
         renderMessages();
       }
-
+      
       observeAll();
       console.log('Init complete!');
     })();
