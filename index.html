@@ -1233,7 +1233,7 @@
         const res = await fetch(API_AUTH_LOGIN,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({email,password:pwd})
+          body:JSON.stringify({display_name:name,email:email,password:pwd})
         });
 
         if(!res.ok) throw new Error('Login failed');
