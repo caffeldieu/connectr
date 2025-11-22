@@ -885,14 +885,9 @@
       <div id="lm_desc" class="muted" style="margin:8px 0 14px 0"></div>
       <div id="lm_price" style="font-size:18px;font-weight:800;margin-bottom:4px;"></div>
       <div id="lm_meta" class="muted" style="margin-top:2px;font-size:12px;"></div>
-      <div class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
-        <button class="btn neon" id="lm_buy" onclick="buyNow()">Buy now</button>
-        <span class="muted" style="font-size:11px;">
-          When you buy, a chat is created with the seller automatically.
-        </span>
-        <span class="pill-warning" id="lm_guestHint" style="display:none;">
-          Log in to message or buy.
-        </span>
+      <!-- Added ID lm_actions to easily inject specific buttons -->
+      <div id="lm_actions" class="row" style="gap:10px; flex-wrap:wrap; margin-top:14px;position:relative;z-index:1;">
+        <!-- Content injected via JS based on ownership -->
       </div>
     </div>
   </div>
@@ -1437,13 +1432,33 @@
         ? '<img src="' + escapeHtml(l.imageUrl) + '" class="listing-image" alt="' + escapeHtml(l.title) + '"/>'
         : '';
       
+      // Logic for card action buttons
+      let actionButtons = '';
+      if (isMyListing) {
+        actionButtons = `
+          <button class="btn purple small" onclick="editListing('${l.id}')">Edit</button>
+          <button class="btn danger small" onclick="deleteListing('${l.id}')">Delete</button>
+        `;
+      } else {
+        actionButtons = `<button class="btn neon small" onclick="openListing('${l.id}')">View details</button>`;
+      }
+
+      const favButton = !isMyListing ? `
+        <button class="seg-btn" 
+                style="padding:4px 8px;font-size:12px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':''}" 
+                onclick="toggleFav('${l.id}')" 
+                ${!isAuthed()?'title="Log in to use favourites"':''}>
+          ${fav?'★':'☆'}
+        </button>
+      ` : '';
+      
       return '<div class="card reveal">' +
         imageHtml +
         '<div class="row spread" style="position:relative;z-index:1;">' +
           '<div style="font-weight:800;font-size:14px;max-width:78%;">' +
             escapeHtml(l.title) +
           '</div>' +
-          (!isMyListing ? '<button class="seg-btn" style="padding:4px 8px;font-size:12px;' + (fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':'') + '" onclick="toggleFav(\'' + l.id + '\')" ' + (!isAuthed()?'title="Log in to use favourites"':'') + '>' + (fav?'★':'☆') + '</button>' : '') +
+          favButton +
         '</div>' +
         '<div class="row spread" style="position:relative;z-index:1;">' +
           '<div class="muted" style="font-size:12px;">' + escapeHtml(l.category || 'Misc') + '</div>' +
@@ -1453,8 +1468,7 @@
           '<div style="font-size:18px; font-weight:800">' + priceStr + '</div>' +
         '</div>' +
         '<div class="row" style="gap:8px;margin-top:6px;position:relative;z-index:1;flex-wrap:wrap;">' +
-          (!isMyListing ? '<button class="btn neon small" onclick=\'openListing("' + l.id + '")\'>View details</button>' : '') +
-          (isMyListing ? '<button class="btn purple small" onclick=\'editListing("' + l.id + '")\'>Edit</button><button class="btn danger small" onclick=\'deleteListing("' + l.id + '")\'>Delete</button>' : '') +
+          actionButtons +
         '</div>' +
       '</div>';
     }
@@ -1496,29 +1510,32 @@
         l.createdAt ? 'Posted ' + timeAgo(new Date(l.createdAt).getTime()) : null,
       ].filter(Boolean).join(' • ');
       
-      const buyBtn = el('#lm_buy');
-      const guestHint = el('#lm_guestHint');
-      
+      const actionsContainer = el('#lm_actions');
+      actionsContainer.innerHTML = ''; // Clear existing buttons
+
       if(isMyListing){
-        buyBtn.style.display = 'none';
-        guestHint.textContent = 'This is your listing. You cannot buy your own item.';
-        guestHint.style.display='inline';
-      } else if(isSold){
-        buyBtn.disabled = true;
-        buyBtn.textContent = 'Sold';
-        buyBtn.style.display = 'inline-block';
-        guestHint.style.display='none';
-      } else if(!isAuthed()){
-        buyBtn.disabled = true;
-        buyBtn.textContent = 'Buy now';
-        buyBtn.style.display = 'inline-block';
-        guestHint.textContent = 'Log in to buy.';
-        guestHint.style.display='inline';
+        // OWNER VIEW
+        actionsContainer.innerHTML = `
+          <button class="btn purple" onclick="editListing('${l.id}'); closeModal('listingModal');">Edit Listing</button>
+          <button class="btn danger" onclick="deleteListing('${l.id}'); closeModal('listingModal');">Delete Listing</button>
+        `;
       } else {
-        buyBtn.disabled = false;
-        buyBtn.textContent = 'Buy now';
-        buyBtn.style.display = 'inline-block';
-        guestHint.style.display='none';
+        // BUYER VIEW
+        if(isSold){
+           actionsContainer.innerHTML = `<button class="btn ghost" disabled>Item Sold</button>`;
+        } else if(!isAuthed()){
+           actionsContainer.innerHTML = `
+             <button class="btn neon" disabled>Buy now</button>
+             <span class="pill-warning">Log in to message or buy.</span>
+           `;
+        } else {
+           actionsContainer.innerHTML = `
+             <button class="btn neon" onclick="buyNow()">Buy now</button>
+             <span class="muted" style="font-size:11px;">
+               When you buy, a chat is created with the seller automatically.
+             </span>
+           `;
+        }
       }
       
       openModal('listingModal');
