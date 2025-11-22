@@ -1505,7 +1505,7 @@
     (l.price > 0 ? '€' + Number(l.price).toFixed(2) : 'Free / swap');
   el('#lm_price').textContent = priceStr;
   
-  const sellerName = l.sellerName || l.seller.split('@')[0];
+  const sellerName = l.sellerName || (l.seller && l.seller.includes('@') ? l.seller.split('@')[0] : 'Unknown seller');
   el('#lm_meta').textContent = [
     'Seller: ' + sellerName,
     l.category ? 'Category: ' + l.category : null,
