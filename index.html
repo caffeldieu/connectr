@@ -1193,9 +1193,11 @@
     }
     
     function openAuthModal(mode){
+      clearAuthErrors();
       switchAuthMode(mode || 'login');
       openModal('authModal');
     }
+
     
     function switchAuthMode(mode){
       const loginTab = el('#tabLogin');
@@ -2046,6 +2048,58 @@
         return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m];
       });
     }
+
+    function showLoginError(msg){
+  const box = document.getElementById('loginError');
+  if(!box) return;
+  box.textContent = msg || 'Login failed.';
+  box.style.display = 'block';
+}
+
+function clearAuthErrors(){
+  const ids = ['loginError', 'registerError'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.textContent = '';
+      el.style.display = 'none';
+    }
+  });
+}
+
+function hideAuthModal(){
+  // Close the modal
+  closeModal('authModal');
+
+  // Clear errors
+  clearAuthErrors();
+
+  // Optionally clear login inputs
+  const emailEl = document.getElementById('login_email');
+  const pwdEl   = document.getElementById('login_password');
+  if(emailEl) emailEl.value = '';
+  if(pwdEl)   pwdEl.value   = '';
+}
+
+/**
+ * Called after a successful login to refresh everything
+ */
+function refreshUiAfterAuth(){
+  persistAuth();          // save token + user in localStorage
+  updateAuthUI();         // update header + hero box
+  renderProfileStats();   // profile card
+
+  // kick off async loads – no need to await here
+  loadListings();
+  syncFavourites();
+  loadMyListings();
+  loadMessages();
+
+  renderHome();
+  runSearch();
+  observeAll();
+}
+
     
     function observeAll(){
       const io=new IntersectionObserver(function(es){
@@ -2061,10 +2115,6 @@
       editListing(id);
     }
     
-    function deleteListingFromModal(id){
-      closeModal('listingModal');
-      deleteListing(id);
-    }
     
     async function createChatWithSeller(){
       if(!state.selected) return;
