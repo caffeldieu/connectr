@@ -552,6 +552,9 @@
         padding:24px 28px 28px;
         margin-top:40px;
       }
+      .story-mission-grid{
+        grid-template-columns:1fr !important;
+      }
     }
   </style>
 </head>
@@ -582,15 +585,11 @@
             <span class="pill-dot"></span>
             <span>connectr+ marketplace</span>
           </div>
-          <h1 class="headline">Connect your campus in one trusted marketplace.</h1>
+          <h1 class="headline">Connect your <span style="color:var(--neon)">campus</span> in<br/>one trusted marketplace.</h1>
           <p class="tagline">
             Browse, list, and buy instantly. Built for students, optimised for trust. 
             No auctions, no stress — just straightforward peer-to-peer trade within your university.
           </p>
-          <div class="cta-group">
-            <button class="btn neon" onclick="go('search')">Get started</button>
-            <button class="btn ghost" onclick="openAuthModal('login')">I already have an account</button>
-          </div>
           <div class="metrics">
             <div class="metric">
               <div class="metric-value" id="metricListings">0</div>
@@ -630,7 +629,7 @@
             </div>
           </div>
         </div>
-        <div class="grid reveal" style="margin-top:40px">
+        <div class="story-mission-grid reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px;">
           <div class="card">
             <div class="section-eyebrow">Our story</div>
             <div class="section-title">BUILT BY <span class="accent">STUDENTS</span>, FOR STUDENTS</div>
@@ -778,11 +777,24 @@
           <div class="row" style="gap:12px; margin-top:12px; flex-wrap:wrap">
             <div style="flex:1 1 200px">
               <label>Location</label>
-              <input id="pf_location" type="text" placeholder="City / campus"/>
+              <div style="position:relative;">
+                <input id="pf_location" type="text" placeholder="Search for your suburb..." 
+                       oninput="filterLocations()" 
+                       onfocus="document.getElementById('locationDropdown').style.display='block'"
+                       autocomplete="off"/>
+                <div id="locationDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#141518;border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:5;">
+                  <!-- Locations will be populated by JS -->
+                </div>
+              </div>
             </div>
             <div style="flex:1 1 200px">
               <label>University</label>
-              <input id="pf_university" type="text" placeholder="University name"/>
+              <select id="pf_university">
+                <option value="">Select your campus</option>
+                <option value="IE University - Segovia Campus">IE University - Segovia Campus</option>
+                <option value="IE University - Tower">IE University - Tower</option>
+                <option value="IE University - Maria De Molina">IE University - Maria De Molina</option>
+              </select>
             </div>
           </div>
           <div class="row" style="gap:10px; margin-top:12px">
@@ -1412,7 +1424,10 @@
           <button class="btn danger small" onclick="deleteListing('${l.id}')">Delete</button>
         `;
       } else {
-        actionButtons = `<button class="btn neon small" onclick="openListing('${l.id}')">View details</button>`;
+        actionButtons = `
+          <button class="btn neon small" onclick="openListing('${l.id}')">View details</button>
+          ${!isSold && isAuthed() ? `<button class="btn ghost small" onclick="event.stopPropagation();messageSeller('${l.id}')">💬 Message</button>` : ''}
+        `;
       }
 
       const favButton = !isMyListing ? `
@@ -1511,10 +1526,11 @@
     const isFavourited = isFav(l.id);
     actionButtons.innerHTML = `
       <button class="btn neon" onclick="buyNow('${l.id}')">Buy now for ${priceStr}</button>
+      <button class="btn ghost" onclick="messageSeller('${l.id}')">💬 Message seller</button>
       <button class="btn ghost" onclick="toggleFav('${l.id}');openListing('${l.id}')" style="padding:9px 16px;">
         ${isFavourited ? '★ Saved' : '☆ Save to favourites'}
       </button>
-      <span class="muted" style="font-size:11px;">When you buy, a chat with automated welcome message is created with the seller.</span>
+      <span class="muted" style="font-size:11px;">Buy instantly with automated welcome message, or message the seller first to ask questions.</span>
     `;
   }
   
@@ -1574,6 +1590,71 @@
       }catch(e){
         console.error(e);
         alert('❌ Could not complete purchase: ' + (e.message || 'Please try again.'));
+      }
+    }
+    
+    async function messageSeller(listingId){
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      
+      const listing = state.listings.find(l => l.id === listingId);
+      if(!listing) return;
+      
+      try{
+        // Check if a chat room already exists for this listing
+        await loadMessages();
+        
+        const existingChat = state.chatRooms.find(room => 
+          room.listingId === listingId && 
+          (room.buyer === state.user.email || room.seller === state.user.email)
+        );
+        
+        if(existingChat){
+          // Chat already exists, open it
+          closeModal('listingModal');
+          go('messages');
+          setTimeout(() => openChat(existingChat.id), 300);
+          return;
+        }
+        
+        // Create a new chat room without buying
+        const res = await fetch(LISTINGS_BASE + '/chat/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + state.token
+          },
+          body: JSON.stringify({
+            listingId: listingId,
+            sellerId: listing.seller || listing.sellerId
+          })
+        });
+        
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Could not create chat');
+        }
+        
+        const newChat = await res.json();
+        
+        // Reload messages and open the new chat
+        await loadMessages();
+        closeModal('listingModal');
+        go('messages');
+        
+        setTimeout(() => {
+          if(newChat.chatRoomId) {
+            openChat(newChat.chatRoomId);
+          } else {
+            alert('💬 Chat created! You can now message the seller about "' + listing.title + '"');
+          }
+        }, 300);
+        
+      }catch(e){
+        console.error('Message seller error:', e);
+        alert('💬 Could not create chat: ' + (e.message || 'Please try again.'));
       }
     }
     
@@ -1953,7 +2034,12 @@
           const p = JSON.parse(saved);
           state.profile = p;
           el('#pf_location').value = p.location || '';
-          el('#pf_university').value = p.university || '';
+          
+          // Set university dropdown value if it exists
+          const universitySelect = el('#pf_university');
+          if(universitySelect && p.university) {
+            universitySelect.value = p.university;
+          }
         }catch(e){}
       }
     }
@@ -2003,6 +2089,93 @@
       els('.reveal').forEach(el => observer.observe(el));
     }
     
+    /* ==================== LOCATION SEARCH ==================== */
+    
+    const madridSegoviaLocations = [
+      // Madrid Centro
+      "Centro - Madrid", "Sol - Madrid", "Opera - Madrid", "Malasaña - Madrid", "Chueca - Madrid",
+      "Lavapiés - Madrid", "La Latina - Madrid", "Huertas - Madrid", "Barrio de las Letras - Madrid",
+      // Madrid Norte
+      "Chamartín - Madrid", "Chamberí - Madrid", "Tetuán - Madrid", "Moncloa-Aravaca - Madrid",
+      "Fuencarral-El Pardo - Madrid", "Hortaleza - Madrid", "Barajas - Madrid",
+      // Madrid Este
+      "Salamanca - Madrid", "Retiro - Madrid", "Ciudad Lineal - Madrid", "San Blas-Canillejas - Madrid",
+      "Vicálvaro - Madrid", "Moratalaz - Madrid",
+      // Madrid Sur
+      "Arganzuela - Madrid", "Carabanchel - Madrid", "Usera - Madrid", "Puente de Vallecas - Madrid",
+      "Villa de Vallecas - Madrid", "Villaverde - Madrid",
+      // Madrid Oeste
+      "Latina - Madrid", "Moncloa - Madrid", "Ciudad Universitaria - Madrid",
+      // Segovia
+      "Segovia Centro", "Barrio de San Lorenzo - Segovia", "Barrio de San Millán - Segovia",
+      "Barrio de Santa Eulalia - Segovia", "Barrio del Salvador - Segovia", "Nueva Segovia",
+      "Pinar de Jalón - Segovia", "La Albuera - Segovia", "Zamarramala - Segovia",
+      // Greater Madrid suburbs
+      "Alcalá de Henares", "Alcobendas", "Alcorcón", "Fuenlabrada", "Getafe", "Leganés",
+      "Móstoles", "Torrejón de Ardoz", "Parla", "Pozuelo de Alarcón", "Rivas-Vaciamadrid",
+      "Majadahonda", "Las Rozas de Madrid", "San Sebastián de los Reyes", "Coslada",
+      "San Fernando de Henares", "Valdemoro", "Collado Villalba", "Aranjuez", "Boadilla del Monte"
+    ].sort();
+    
+    function initLocationDropdown() {
+      const dropdown = el('#locationDropdown');
+      dropdown.innerHTML = madridSegoviaLocations
+        .map(loc => `<div class="location-option" onclick="selectLocation('${loc}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--line);">${loc}</div>`)
+        .join('');
+    }
+    
+    function filterLocations() {
+      const input = el('#pf_location');
+      const dropdown = el('#locationDropdown');
+      const filter = input.value.toLowerCase();
+      
+      if (!filter) {
+        initLocationDropdown();
+        return;
+      }
+      
+      const filtered = madridSegoviaLocations.filter(loc => 
+        loc.toLowerCase().includes(filter)
+      );
+      
+      if (filtered.length === 0) {
+        dropdown.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);">No locations found</div>';
+      } else {
+        dropdown.innerHTML = filtered
+          .map(loc => `<div class="location-option" onclick="selectLocation('${loc}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--line);">${loc}</div>`)
+          .join('');
+      }
+      
+      dropdown.style.display = 'block';
+    }
+    
+    function selectLocation(location) {
+      el('#pf_location').value = location;
+      el('#locationDropdown').style.display = 'none';
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const locationInput = el('#pf_location');
+      const dropdown = el('#locationDropdown');
+      if (dropdown && locationInput && !locationInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+    
+    // Hover effects for location options
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.classList.contains('location-option')) {
+        e.target.style.background = 'rgba(255,255,255,.04)';
+      }
+    });
+    
+    document.addEventListener('mouseout', function(e) {
+      if (e.target.classList.contains('location-option')) {
+        e.target.style.background = '';
+      }
+    });
+    
     /* ==================== INIT ==================== */
     
     (async function init(){
@@ -2019,6 +2192,7 @@
       }
       renderHome();
       observeAll();
+      initLocationDropdown();
     })();
   </script>
 </body>
