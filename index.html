@@ -639,6 +639,13 @@
               into campus commerce — no third-party auctions, no hidden bids. 
               Just students helping students.
             </p>
+            <ul style="margin:14px 0 0 15px;font-size:13px;color:var(--muted);padding-left:4px;line-height:1.8;">
+              <li>Born from real campus frustrations and challenges</li>
+              <li>Designed with student budgets and schedules in mind</li>
+              <li>Built to foster trust within your university community</li>
+              <li>No corporate middlemen taking cuts from your sales</li>
+              <li>Empowering students to support each other directly</li>
+            </ul>
           </div>
           <div class="card">
             <div class="section-eyebrow">Our mission</div>
@@ -802,7 +809,7 @@
           </div>
         </div>
         
-        <div class="grid reveal" style="margin-top:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;" class="reveal">
           <div class="card">
             <div class="row spread">
               <div class="muted">Your listings</div>
@@ -813,12 +820,6 @@
             <div class="row spread">
               <div class="muted">Total favourites</div>
               <div id="stat_favs">0</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="row spread">
-              <div class="muted">Total purchases (coming soon)</div>
-              <div id="stat_purchases">0</div>
             </div>
           </div>
         </div>
@@ -1424,10 +1425,7 @@
           <button class="btn danger small" onclick="deleteListing('${l.id}')">Delete</button>
         `;
       } else {
-        actionButtons = `
-          <button class="btn neon small" onclick="openListing('${l.id}')">View details</button>
-          ${!isSold && isAuthed() ? `<button class="btn ghost small" onclick="event.stopPropagation();messageSeller('${l.id}')">💬 Message</button>` : ''}
-        `;
+        actionButtons = `<button class="btn neon small" onclick="openListing('${l.id}')">View details</button>`;
       }
 
       const favButton = !isMyListing ? `
@@ -1526,11 +1524,10 @@
     const isFavourited = isFav(l.id);
     actionButtons.innerHTML = `
       <button class="btn neon" onclick="buyNow('${l.id}')">Buy now for ${priceStr}</button>
-      <button class="btn ghost" onclick="messageSeller('${l.id}')">💬 Message seller</button>
       <button class="btn ghost" onclick="toggleFav('${l.id}');openListing('${l.id}')" style="padding:9px 16px;">
         ${isFavourited ? '★ Saved' : '☆ Save to favourites'}
       </button>
-      <span class="muted" style="font-size:11px;">Buy instantly with automated welcome message, or message the seller first to ask questions.</span>
+      <span class="muted" style="font-size:11px;">When you buy, a chat with automated welcome message is created instantly with the seller.</span>
     `;
   }
   
@@ -1556,7 +1553,7 @@
       const listing = state.listings.find(l => l.id === id);
       if(!listing) return;
       
-      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price).toFixed(2)}?\n\nA chat will be created automatically with the seller.`)) return;
+      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price).toFixed(2)}?\n\nA chat will be created automatically with the seller and an automated welcome message will be sent!`)) return;
       
       try{
         const res = await fetch(API_BUY(id), {
@@ -1586,75 +1583,10 @@
               '📦 Item "' + listing.title + '" is now yours\n' +
               '💬 Chat created with seller - check your Messages!\n' +
               '🎉 An automated welcome message has been sent\n\n' +
-              'Go to Messages to coordinate pickup/delivery.');
+              'Coordinate pickup/delivery in your Messages tab.');
       }catch(e){
         console.error(e);
         alert('❌ Could not complete purchase: ' + (e.message || 'Please try again.'));
-      }
-    }
-    
-    async function messageSeller(listingId){
-      if(!isAuthed()){
-        openAuthModal('login');
-        return;
-      }
-      
-      const listing = state.listings.find(l => l.id === listingId);
-      if(!listing) return;
-      
-      try{
-        // Check if a chat room already exists for this listing
-        await loadMessages();
-        
-        const existingChat = state.chatRooms.find(room => 
-          room.listingId === listingId && 
-          (room.buyer === state.user.email || room.seller === state.user.email)
-        );
-        
-        if(existingChat){
-          // Chat already exists, open it
-          closeModal('listingModal');
-          go('messages');
-          setTimeout(() => openChat(existingChat.id), 300);
-          return;
-        }
-        
-        // Create a new chat room without buying
-        const res = await fetch(LISTINGS_BASE + '/chat/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + state.token
-          },
-          body: JSON.stringify({
-            listingId: listingId,
-            sellerId: listing.seller || listing.sellerId
-          })
-        });
-        
-        if(!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || 'Could not create chat');
-        }
-        
-        const newChat = await res.json();
-        
-        // Reload messages and open the new chat
-        await loadMessages();
-        closeModal('listingModal');
-        go('messages');
-        
-        setTimeout(() => {
-          if(newChat.chatRoomId) {
-            openChat(newChat.chatRoomId);
-          } else {
-            alert('💬 Chat created! You can now message the seller about "' + listing.title + '"');
-          }
-        }, 300);
-        
-      }catch(e){
-        console.error('Message seller error:', e);
-        alert('💬 Could not create chat: ' + (e.message || 'Please try again.'));
       }
     }
     
@@ -2016,7 +1948,6 @@
     function renderProfileStats(){
       el('#stat_mylistings').textContent = state.myListings.length;
       el('#stat_favs').textContent = state.favourites.length;
-      el('#stat_purchases').textContent = '0';
       
       const since = state.user && state.user.createdAt 
         ? new Date(state.user.createdAt).toLocaleDateString()
