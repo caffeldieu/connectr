@@ -710,7 +710,18 @@
               </div>
               <div style="flex:1 1 220px">
                 <label>Category</label>
-                <input id="p_category" type="text" placeholder="e.g. Textbooks, Electronics, Tickets…"/>
+                <select id="p_category">
+                  <option value="Books & Textbooks">Books & Textbooks</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Clothing & Accessories">Clothing & Accessories</option>
+                  <option value="Tickets & Events">Tickets & Events</option>
+                  <option value="Sports & Fitness">Sports & Fitness</option>
+                  <option value="Art & Supplies">Art & Supplies</option>
+                  <option value="Kitchen & Appliances">Kitchen & Appliances</option>
+                  <option value="Bikes & Transportation">Bikes & Transportation</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
             <div>
@@ -871,7 +882,18 @@
           </div>
           <div style="flex:1 1 220px">
             <label>Category</label>
-            <input id="e_category" type="text" placeholder="Category"/>
+            <select id="e_category">
+              <option value="Books & Textbooks">Books & Textbooks</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Clothing & Accessories">Clothing & Accessories</option>
+              <option value="Tickets & Events">Tickets & Events</option>
+              <option value="Sports & Fitness">Sports & Fitness</option>
+              <option value="Art & Supplies">Art & Supplies</option>
+              <option value="Kitchen & Appliances">Kitchen & Appliances</option>
+              <option value="Bikes & Transportation">Bikes & Transportation</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
         <div>
@@ -1395,9 +1417,11 @@
 
       const favButton = !isMyListing ? `
         <button class="seg-btn" 
-                style="padding:4px 8px;font-size:12px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;':''}" 
-                onclick="toggleFav('${l.id}')" 
-                ${!isAuthed()?'title="Log in to use favourites"':''}>
+                style="padding:6px 10px;font-size:16px;${fav?'border-color:var(--purple);color:var(--neon);font-weight:800;background:rgba(193,255,114,.15);':''}transition:all .2s;" 
+                onclick="event.stopPropagation();toggleFav('${l.id}')" 
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'"
+                ${!isAuthed()?'title="Log in to save favourites"':'title="'+(fav?'Remove from favourites':'Add to favourites')+'"'}>
           ${fav?'★':'☆'}
         </button>
       ` : '';
@@ -1484,9 +1508,13 @@
     guestHint.textContent = 'Sign in to purchase this item and start a chat with the seller';
     guestHint.style.display = 'block';
   } else {
+    const isFavourited = isFav(l.id);
     actionButtons.innerHTML = `
       <button class="btn neon" onclick="buyNow('${l.id}')">Buy now for ${priceStr}</button>
-      <span class="muted" style="font-size:11px;">When you buy, a chat is created with the seller automatically.</span>
+      <button class="btn ghost" onclick="toggleFav('${l.id}');openListing('${l.id}')" style="padding:9px 16px;">
+        ${isFavourited ? '★ Saved' : '☆ Save to favourites'}
+      </button>
+      <span class="muted" style="font-size:11px;">When you buy, a chat with automated welcome message is created with the seller.</span>
     `;
   }
   
@@ -1512,7 +1540,7 @@
       const listing = state.listings.find(l => l.id === id);
       if(!listing) return;
       
-      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price).toFixed(2)}?`)) return;
+      if(!confirm(`Buy "${listing.title}" for €${Number(listing.price).toFixed(2)}?\n\nA chat will be created automatically with the seller.`)) return;
       
       try{
         const res = await fetch(API_BUY(id), {
@@ -1523,16 +1551,29 @@
           },
           body:JSON.stringify({})
         });
-        if(!res.ok) throw new Error('Purchase failed');
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Purchase failed');
+        }
         
+        // Reload all data to get the new chat room and updated listing
         await loadListings();
         await loadMessages();
+        await loadMyListings();
+        
         closeModal('listingModal');
         
-        alert('Purchase completed!\n\n✓ Item "' + listing.title + '" is now yours\n✓ Chat created with seller\n\nGo to Messages to coordinate delivery.');
+        // Navigate to messages to see the new chat
+        go('messages');
+        
+        alert('✅ Purchase completed!\n\n' + 
+              '📦 Item "' + listing.title + '" is now yours\n' +
+              '💬 Chat created with seller - check your Messages!\n' +
+              '🎉 An automated welcome message has been sent\n\n' +
+              'Go to Messages to coordinate pickup/delivery.');
       }catch(e){
         console.error(e);
-        alert('Could not complete purchase. Please try again.');
+        alert('❌ Could not complete purchase: ' + (e.message || 'Please try again.'));
       }
     }
     
@@ -1543,14 +1584,14 @@
       }
       const title = el('#p_title').value.trim();
       if(title.length<3){
-        alert('Please add a longer title.');
+        alert('⚠️ Please add a longer title (at least 3 characters).');
         return;
       }
       
       try{
         const formData = new FormData();
         formData.append("title", title);
-        formData.append("category", el('#p_category').value.trim());
+        formData.append("category", el('#p_category').value);
         formData.append("description", el('#p_desc').value.trim());
         formData.append("price", el('#p_price').value || "0");
         formData.append("visibility", "public");
@@ -1568,23 +1609,29 @@
           body: formData
         });
         
-        if(!res.ok) throw new Error('Failed to create listing');
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Failed to create listing');
+        }
         
         await loadListings();
         await loadMyListings();
         
         el('#p_title').value = '';
-        el('#p_category').value = '';
+        el('#p_category').selectedIndex = 0;
         el('#p_desc').value = '';
         el('#p_price').value = '';
         el('#p_image').value = '';
         el('#imagePreview').innerHTML = '';
         
-        alert('Listing published!');
+        alert('✅ Listing published successfully!\n\n' +
+              '📢 Your item is now live on the marketplace\n' +
+              '💰 Buyers can purchase it instantly at your price\n' +
+              '💬 You\'ll get an automated message when someone buys');
         go('search');
       }catch(e){
         console.error(e);
-        alert('Could not publish listing. Please try again.');
+        alert('❌ Could not publish listing: ' + (e.message || 'Please try again.'));
       }
     }
     
@@ -1737,7 +1784,7 @@
     function renderFavourites(){
       const favs = state.listings.filter(l=> state.favourites.includes(l.id));
       el('#favGrid').innerHTML = favs.map(renderListingCard).join('') ||
-        '<div class="muted">Nothing here yet. Tap the ★ on listings to save them.</div>';
+        '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:16px;">⭐</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--neon);">No favourites yet</div><div class="muted">Tap the ★ star on any listing to save it here.<br/>You can favourite items to easily find them later!</div></div>';
     }
     
     /* ==================== MESSAGES & CHAT ==================== */
@@ -1780,12 +1827,12 @@
       if(!list) return;
       
       if(!isAuthed()){
-        list.innerHTML = '<div class="muted">Log in to see your chats.</div>';
+        list.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:16px;">💬</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Log in to see your chats</div><div class="muted">Messages appear here when you buy or sell items</div></div>';
         return;
       }
       
       if(state.messages.length === 0){
-        list.innerHTML = '<div class="muted">No chats yet. When you buy an item, a chat is created automatically.</div>';
+        list.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:16px;">💬</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--neon);">No chats yet</div><div class="muted">When you buy an item, a chat is created automatically with:<br/>✓ Automated welcome message<br/>✓ Seller contact info<br/>✓ Item details</div></div>';
         return;
       }
       
@@ -1832,7 +1879,9 @@
           const isSystem = msg.from === 'system';
           
           if(isSystem){
-            return `<div class="bubble" style="background:#1a1c24;border-color:#2a2c34;max-width:100%;text-align:center;font-size:11px;color:var(--muted);">${escapeHtml(msg.message)}</div>`;
+            return `<div class="bubble" style="background:linear-gradient(135deg,rgba(94,23,235,.2),rgba(193,255,114,.2));border:1px solid var(--neon);max-width:100%;text-align:center;font-size:12px;color:var(--neon);padding:12px;font-weight:600;">
+              🎉 ${escapeHtml(msg.message)}
+            </div>`;
           }
           
           return `
