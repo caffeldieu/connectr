@@ -1245,8 +1245,12 @@
         
         if(!res.ok) throw new Error('Login failed');
         
-        const data = await res.json();
-        state.token = data.access_token || data.token;
+        const data = JSON.parse(rawText);
+
+        // Save correct JWT
+        state.token = data.access_token;
+        console.log("TOKEN SAVED:", state.token);
+
         
         if(!state.token) throw new Error('Missing token');
         
