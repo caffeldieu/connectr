@@ -1869,36 +1869,50 @@
       
       renderMessages();
     }
+
+    function getInitials(name) {
+      if (!name) return 'U';
+      return name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .substring(0,2)
+        .toUpperCase();
+    }
     
     function renderMessages(){
       const list = el('#msgList');
-      
+    
       if(!isAuthed()){
         list.innerHTML = '<div class="muted">Log in to see your chats with buyers and sellers.</div>';
         return;
       }
-      
+    
       if(state.messages.length === 0){
         list.innerHTML = '<div class="muted">No chats yet. When you buy or sell an item, a chat will be created here to arrange delivery.</div>';
         return;
       }
-      
+    
       const rows = state.messages
         .slice()
         .sort((a,b)=>b.ts-a.ts)
         .map(m=>
         '<div class="list-item clickable" onclick="openChat(\'' + m.id + '\')">' +
           '<div class="row" style="gap:10px">' +
-            '<div class="avatar">' + (m.peer||'U').slice(0,1).toUpperCase() + '</div>' +
+            '<div class="avatar">' + getInitials(m.peer) + '</div>' +
             '<div style="flex:1">' +
               '<div><strong>' + escapeHtml(m.peer) + '</strong></div>' +
-              '<div class="muted" style="font-size:12px">' + escapeHtml(m.last) + '</div>' +
+              '<div style="font-size:14px; font-weight:700; color:#fff;">' +
+                  escapeHtml(m.last) +
+              '</div>' +
             '</div>' +
           '</div>' +
           '<div class="muted" style="font-size:11px">' + timeAgo(m.ts) + '</div>' +
         '</div>').join('');
+        
       list.innerHTML = rows;
     }
+
     
     async function openChat(chatRoomId){
       const m = state.messages.find(x=>x.id===chatRoomId);
