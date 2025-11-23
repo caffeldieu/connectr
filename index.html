@@ -1222,59 +1222,72 @@
       }
     }
     
-    async function submitLogin(){
-      const email = el('#login_email').value.trim();
-      const pwd   = el('#login_password').value.trim();
-      const errEl = el('#loginError');
-      
-      errEl.style.display = 'none';
-      errEl.textContent   = '';
-      
-      if(!email || !pwd){
-        errEl.textContent='Please enter email and password.';
-        errEl.style.display='block';
-        return;
-      }
-      
-      try{
-        const res = await fetch(API_AUTH_LOGIN,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({email:email,password:pwd})
-        });
-        
-        if(!res.ok) throw new Error('Login failed');
-        
-        const data = JSON.parse(rawText);
+    async function submitLogin(e) {
+  if (e && e.preventDefault) e.preventDefault();
 
-        // Save correct JWT
-        state.token = data.access_token;
-        console.log("TOKEN SAVED:", state.token);
+  const emailEl = document.getElementById('login_email');
+  const pwdEl   = document.getElementById('login_password');
+  const email   = emailEl.value.trim();
+  const pwd     = pwdEl.value;
 
-        
-        if(!state.token) throw new Error('Missing token');
-        
-        state.user = { email };
-        
-        await fetchMe();
-        await syncFavourites();
-        await loadMyListings();
-        await loadMessages();
-        
-        persistAuth();
-        updateAuthUI();
-        closeModal('authModal');
-        
-        await loadListings();
-        go('home');
-        
-        alert('Logged in successfully.');
-      }catch(e){
-        console.error('Login error:', e);
-        errEl.textContent = 'Login failed: ' + e.message;
-        errEl.style.display='block';
-      }
+  if (!email || !pwd) {
+    showLoginError('Please enter email and password.');
+    return;
+  }
+
+  let rawText = '';   // <-- declared so catch can see it
+
+  try {
+    console.log('Attempting login for:', email);
+
+    const res = await fetch(API_AUTH_LOGIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pwd })
+    });
+
+    rawText = await res.text();
+    console.log('Login raw response:', rawText);
+
+    if (!res.ok) {
+      // backend sends JSON error or plain text – both handled
+      let msg = 'Login failed';
+      try {
+        const errData = JSON.parse(rawText);
+        msg = errData.detail || errData.message || msg;
+      } catch (_) {}
+      throw new Error(msg);
     }
+
+    const data = JSON.parse(rawText);
+    console.log('Parsed login data:', data);
+
+    // Backend returns { access_token, token_type, user: {...} }
+    state.token = data.access_token || data.token || null;
+    console.log(
+      'Extracted token:',
+      state.token ? state.token.substring(0, 20) + '...' : 'null'
+    );
+
+    if (!state.token) throw new Error('Missing token in response');
+
+    // fetch /me
+    await fetchMe();
+    console.log('User after fetchMe:', state.user);
+
+    if (!state.user) {
+      throw new Error('Could not load user profile after login');
+    }
+
+    // success: close modal + refresh UI
+    hideAuthModal();
+    refreshUiAfterAuth();
+  } catch (err) {
+    console.error('Login error:', err, 'rawText was:', rawText);
+    showLoginError(err.message || 'Login failed');
+  }
+}
+
     
     async function submitRegister(){
       const name = el('#reg_name').value.trim();
