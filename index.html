@@ -643,6 +643,8 @@
               <li>Born from real campus frustrations and challenges</li>
               <li>Designed with student budgets and schedules in mind</li>
               <li>Built to foster trust within your university community</li>
+              <li>No corporate middlemen taking cuts from your sales</li>
+              <li>Empowering students to support each other directly</li>
             </ul>
           </div>
           <div class="card">
@@ -1416,7 +1418,11 @@
           <button class="btn danger small" onclick="deleteListing('${l.id}')">Delete</button>
         `;
       } else {
-        actionButtons = `<button class="btn neon small" onclick="openListing('${l.id}')">View details</button>`;
+        const messageBtn = !isSold && isAuthed() ? `<button class="btn ghost small" onclick="event.stopPropagation();messageSeller('${l.id}')">💬 Message</button>` : '';
+        actionButtons = `
+          <button class="btn neon small" onclick="openListing('${l.id}')">View details</button>
+          ${messageBtn}
+        `;
       }
 
       const favButton = !isMyListing ? `
@@ -1515,10 +1521,11 @@
     const isFavourited = isFav(l.id);
     actionButtons.innerHTML = `
       <button class="btn neon" onclick="buyNow('${l.id}')">Buy now for ${priceStr}</button>
+      <button class="btn ghost" onclick="messageSeller('${l.id}')">💬 Message seller</button>
       <button class="btn ghost" onclick="toggleFav('${l.id}');openListing('${l.id}')" style="padding:9px 16px;">
         ${isFavourited ? '★ Saved' : '☆ Save to favourites'}
       </button>
-      <span class="muted" style="font-size:11px;">When you buy, a chat with automated welcome message is created instantly with the seller.</span>
+      <span class="muted" style="font-size:11px;">Buy for instant chat with automated welcome, or message first to ask questions.</span>
     `;
   }
   
@@ -1578,6 +1585,70 @@
       }catch(e){
         console.error(e);
         alert('❌ Could not complete purchase: ' + (e.message || 'Please try again.'));
+      }
+    }
+    
+    async function messageSeller(listingId){
+      if(!isAuthed()){
+        openAuthModal('login');
+        return;
+      }
+      
+      const listing = state.listings.find(l => l.id === listingId);
+      if(!listing) return;
+      
+      try{
+        // Check if a chat room already exists for this listing
+        await loadMessages();
+        
+        const existingChat = state.chatRooms.find(room => 
+          room.listingId === listingId && 
+          (room.buyerEmail === state.user.email || room.sellerEmail === state.user.email)
+        );
+        
+        if(existingChat){
+          // Chat already exists, open it
+          closeModal('listingModal');
+          go('messages');
+          setTimeout(() => openChat(existingChat.id), 300);
+          return;
+        }
+        
+        // Create a new chat room without buying
+        const res = await fetch(LISTINGS_BASE + '/chat/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + state.token
+          },
+          body: JSON.stringify({
+            listingId: listingId
+          })
+        });
+        
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Could not create chat');
+        }
+        
+        const newChat = await res.json();
+        
+        // Reload messages and open the new chat
+        await loadMessages();
+        closeModal('listingModal');
+        go('messages');
+        
+        setTimeout(() => {
+          if(newChat.chatRoomId) {
+            openChat(newChat.chatRoomId);
+          } else {
+            alert('💬 Chat created! You can now message the seller about "' + listing.title + '"');
+          }
+        }, 300);
+        
+      }catch(e){
+        console.error('Message seller error:', e);
+        alert('💬 To message the seller, you need to purchase the item first. When you buy, a chat is automatically created!');
       }
     }
     
@@ -1649,7 +1720,6 @@
       el('#e_category').value = l.category || '';
       el('#e_desc').value = l.description || '';
       el('#e_price').value = l.price || 0;
-      el('#e_visibility').value = l.visibility || 'public';
       
       openModal('editListingModal');
     }
@@ -1659,10 +1729,9 @@
       
       const updates = {
         title: el('#e_title').value.trim(),
-        category: el('#e_category').value.trim(),
+        category: el('#e_category').value,
         description: el('#e_desc').value.trim(),
         price: Number(el('#e_price').value||0),
-        visibility: el('#e_visibility').value,
       };
       
       try{
@@ -1675,15 +1744,18 @@
           body:JSON.stringify(updates)
         });
         
-        if(!res.ok) throw new Error('Failed to update listing');
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Failed to update listing');
+        }
         
         await loadListings();
         await loadMyListings();
         closeModal('editListingModal');
-        alert('Listing updated!');
+        alert('✅ Listing updated successfully!');
       }catch(e){
-        console.error(e);
-        alert('Could not update listing. Please try again.');
+        console.error('Edit listing error:', e);
+        alert('❌ Could not update listing: ' + (e.message || 'Please try again.'));
       }
     }
     
@@ -1809,14 +1881,19 @@
         
         state.chatRooms = await res.json();
         
-        state.messages = state.chatRooms.map(room => ({
-          id: room.id,
-          title: room.listingTitle || 'Chat',
-          otherParty: room.buyer === state.user.email ? room.seller : room.buyer,
-          lastMessage: room.lastMessage || 'No messages yet',
-          timestamp: room.lastMessageAt || room.createdAt
-        }));
+        // Map chat rooms to messages format, using correct field names from backend
+        state.messages = state.chatRooms.map(room => {
+          const otherParty = room.buyerEmail === state.user.email ? room.sellerEmail : room.buyerEmail;
+          return {
+            id: room.id,
+            title: room.listingTitle || 'Chat',
+            otherParty: otherParty,
+            lastMessage: room.lastMessage || 'No messages yet',
+            timestamp: room.lastMessageAt || room.createdAt
+          };
+        });
         
+        console.log('✅ Loaded messages:', state.messages);
         renderMessages();
       }catch(e){
         console.error('Load messages error:', e);
@@ -1876,6 +1953,8 @@
         if(!res.ok) throw new Error('Failed to load messages');
         
         const messages = await res.json();
+        
+        console.log('💬 Chat messages loaded:', messages);
         
         const thread = el('#chatThread');
         thread.innerHTML = messages.map(msg => {
