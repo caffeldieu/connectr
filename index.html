@@ -1864,6 +1864,7 @@
           return {
             id: room.id,
             listingId: room.listingId,
+            listingTitle: room.listingTitle,
             peer: otherUserName,
             sellerDisplayName,
             buyerDisplayName,
@@ -1914,7 +1915,7 @@
           '<div class="row" style="gap:10px">' +
             '<div class="avatar">' + getInitials(m.sellerDisplayName || m.peer) + '</div>' +
             '<div style="flex:1">' +
-              '<div><strong>' + escapeHtml(m.peer) + '</strong></div>' +
+              '<div><strong>' + escapeHtml(m.listingTitle || m.last) + '</strong></div>' +
               '<div style="font-size:14px; font-weight:700; color:#fff;">' +
                   escapeHtml(m.last) +
               '</div>' +
